@@ -10,13 +10,12 @@ namespace ControlIC.Models
     public class Usuario
     {
         public int ID { get; set; }
-        [Required]
         public string Nome { get; set; }
         public char Sexo { get; set; }
         public DateTime DataNascimento { get; set; }
-        [Required]
+        [Required(ErrorMessage = "O E-mail deve ser inserido.")]
         public string Email { get; set; }
-        [Required]
+        [Required(ErrorMessage = "A senha deve ser inserida.")]
         public string Senha { get; set; }
         public string Linkedin { get; set; }
         public int TipoUsuario { get; set; }
