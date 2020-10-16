@@ -17,41 +17,45 @@
     <h1>Cadastro</h1>
     <br>
     <br>
+
     @using (Html.BeginForm())
     {
-        @Html.ValidationSummary(true)
+    @Html.ValidationSummary(true)
 
-        <fieldset style="width: 40%;">
-            <br />
-            <input type="text" class="form-control" name="Nome" placeholder="Digite seu nome..." />
-            @Html.ValidationMessageFor(model => model.Nome)
-            <br />
-            <br />
-            <br />
-            <input type="email" class="form-control" name="Email" placeholder="Digite seu email..." />
-            @Html.ValidationMessageFor(model => model.Email)
-            <br />
-            <br />
-            <br />
-            <input type="password" class="form-control" name="Senha" placeholder="Digite sua senha..." />
-            @Html.ValidationMessageFor(model => model.Senha)
-            <br />
-            <br />
-            <br />
-            <input type="password" class="form-control" name="ConfirmarSenha" placeholder="Confirme sua senha..." />
-            @Html.ValidationMessageFor(model => model.ConfirmarSenha)
-            <br />
-            <br />
-            <br />
-            <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;">Continuar</button>
-            <br /><br /><br />
+    <fieldset style="width: 40%;">
+        <br />
+        <input type="text" class="form-control" name="Nome" placeholder="Digite seu nome..." />
+        @Html.ValidationMessageFor(model => model.Nome)
+        <br />
+        <br />
+        <br />
+        <input type="email" class="form-control" name="Email" placeholder="Digite seu email..." />
+        @Html.ValidationMessageFor(model => model.Email)
+        <br />
+        <br />
+        <br />
+        <input type="password" class="form-control" name="Senha" placeholder="Digite sua senha..." />
+        @Html.ValidationMessageFor(model => model.Senha)
+        <br />
+        <br />
+        <br />
 
-            @if (ViewBag.Erro != null)
-            {
-                <h3 style="padding: 20px; color: white; background-color: dimgray">
-                    @ViewBag.Erro
-                </h3>
-            }
-        </fieldset>
+        <input type="password" class="form-control" name="ConfirmarSenha" placeholder="Confirme sua senha..." />
+        @Html.ValidationMessageFor(model => model.ConfirmarSenha)
+        <br />
+        <input type="file" accept="image/*" name="Perfil" />
+        <br />
+        <br />
+        <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;">Continuar</button>
+        <br /><br /><br />
+
+        @if (ViewBag.Erro != null)
+        {
+        <h3 style="padding: 20px; color: white; background-color: dimgray">
+            @ViewBag.Erro
+        </h3>
+        }
+    </fieldset>
     }
+
 </center>

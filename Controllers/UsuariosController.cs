@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using System.Drawing;
+using System.IO;
 
 namespace ControlIC.Controllers {
     public class UsuariosController : Controller {
@@ -31,6 +33,8 @@ namespace ControlIC.Controllers {
             [Required(ErrorMessage = "A senha deve ser inserida.")]
             [DataType(DataType.Password)]
             public string Senha { get; set; }
+
+            
         }
 
         public class InputModelEstudante {
@@ -48,7 +52,7 @@ namespace ControlIC.Controllers {
             [Required]
             public int CursoID { get; set; }
 
-            public string linkedin { get; set; }
+            public string LinkedIn { get; set; }
             public Usuario usuario { get; set; }
         }
 
@@ -63,7 +67,7 @@ namespace ControlIC.Controllers {
             [Required]
             public int TitulacaoID { get; set; }
 
-            public string linkedin { get; set; }
+            public string LinkedIn { get; set; }
             public Usuario usuario { get; set; }
         }
 
@@ -83,7 +87,7 @@ namespace ControlIC.Controllers {
 
                 u.DataNascimento = new DateTime();
                 u.DataNascimento = professor.DataNascimento;
-                u.Linkedin = professor.linkedin;
+                u.LinkedIn = professor.LinkedIn;
                 u.Sexo = professor.Genero;
 
                 Login(u);
@@ -103,7 +107,7 @@ namespace ControlIC.Controllers {
 
                 u.DataNascimento = estudante.DataNascimento;
                 u.AnoIngresso = estudante.DataIngresso;
-                u.Linkedin = estudante.linkedin;
+                u.LinkedIn = estudante.LinkedIn;
                 u.Sexo = estudante.Genero;
                 u.CursoID = estudante.CursoID;
 
@@ -141,7 +145,14 @@ namespace ControlIC.Controllers {
                         var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
 
                         if (usuarioCadastrado == null) {
-                            var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+                            IFormFile imagemEnviada = usuario.Perfil.FirstOrDefault();
+                            if (imagemEnviada != null)
+                            {
+                                MemoryStream ms = new MemoryStream();
+                                imagemEnviada.OpenReadStream().CopyTo(ms);
+                                usuario.ImgUsuario = ms.ToArray();
+                            }
+                                var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
                             usuario.TipoUsuario = u.TipoUsuario;
 
                             TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
@@ -268,7 +279,7 @@ namespace ControlIC.Controllers {
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,Linkedin,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
+        public async Task<IActionResult> Create([Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,LinkedIn,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
             if (ModelState.IsValid) {
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
@@ -296,7 +307,7 @@ namespace ControlIC.Controllers {
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,Linkedin,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,LinkedIn,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
             if (id != usuario.ID) {
                 return NotFound();
             }

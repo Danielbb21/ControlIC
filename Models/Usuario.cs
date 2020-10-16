@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,7 +23,7 @@ namespace ControlIC.Models
         public string Nome { get; set; }
 
         public char Sexo { get; set; }
-        public string Linkedin { get; set; }
+        public string LinkedIn { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime DataNascimento { get; set; }
@@ -32,11 +33,11 @@ namespace ControlIC.Models
         public int TipoUsuario { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime AnoIngresso { get; set; }
+        public DateTime? AnoIngresso { get; set; }
         public int? CursoID { get; set; }
         public virtual Curso Curso {get; set;}
 
-        public int TitulacaoID { get; set; }
+        public int? TitulacaoID { get; set; }
         public virtual Titulacao Titulacao { get; set; }
 
         public virtual List<ProjetoCoorientador> projetoCoorientadores { get; set; }
@@ -44,5 +45,8 @@ namespace ControlIC.Models
 
         [NotMapped]
         public string ConfirmarSenha { get; set; }
+        [NotMapped]
+        public IList<IFormFile> Perfil { get; set; }
+
     }
 }
