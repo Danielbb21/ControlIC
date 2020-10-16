@@ -43,7 +43,11 @@ namespace ControlIC.Controllers
             public DateTime DataNascimento { get; set; }
 
             [Required]
-            public string Genero { get; set; }
+            [DataType(DataType.Date)]
+            public DateTime DataIngresso { get; set; }
+
+            [Required]
+            public char Genero { get; set; }
 
             [Required]
             public int CursoID { get; set; }
@@ -98,7 +102,7 @@ namespace ControlIC.Controllers
 
                 return RedirectToAction("UserPage");
             }
-            return View();
+            return RedirectToAction("CadastroProfessor");
         }
 
         [HttpPost]
@@ -110,7 +114,7 @@ namespace ControlIC.Controllers
 
                 u.DataNascimento = estudante.DataNascimento;
                 u.Linkedin = estudante.linkedin;
-                u.Sexo = estudante.Genero[0];
+                u.Sexo = estudante.Genero;
                 u.CursoID = estudante.CursoID;
 
                 Login(u);
@@ -120,7 +124,7 @@ namespace ControlIC.Controllers
 
                 return RedirectToAction("UserPage");
             }
-            return View();
+            return RedirectToAction("CadastroEstudante");
         }
 
         public IActionResult CadastroEstudante() 
