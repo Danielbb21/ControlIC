@@ -7,16 +7,126 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControlIC.Data;
 using ControlIC.Models;
+using Microsoft.AspNetCore.Http;
+using System.Reflection.Emit;
+using Microsoft.AspNetCore.Routing;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace ControlIC.Controllers
 {
     public class UsuariosController : Controller
     {
         private readonly ControlICContext _context;
+        public const string SessionKeyNome = "Nome";
+        public const string SessionKeyID = "ID";
+
+        public class InputModel
+        {
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
+
+            [Required]
+            [DataType(DataType.Password)]
+            public string Senha { get; set; }
+        }
+
+        public class InputModelEstudante
+        {
+            [Required]
+            [DataType(DataType.Date)]
+            public DateTime DataNascimento { get; set; }
+
+            [Required]
+            public char Genero { get; set; }
+
+            [Required]
+            public int CursoID { get; set; }
+
+            public string linkedin { get; set; }
+            public Usuario usuario { get; set; }
+        }
+
+        public class InputModelProfessor
+        {
+            [Required]
+            [DataType(DataType.Date)]
+            public DateTime DataNascimento { get; set; }
+
+            [Required]
+            public char Genero { get; set; }
+
+            [Required]
+            public int TitulacaoID { get; set; }
+
+            public string linkedin { get; set; }
+            public Usuario usuario { get; set; }
+        }
 
         public UsuariosController(ControlICContext context)
         {
             _context = context;
+        }
+
+        public IActionResult CadastroProfessor(Usuario usuario) 
+        {
+            ViewData["TitulacaoID"] = new SelectList(_context.Titulacoes, "ID", "NomeTitulacao");
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CadastroProfessor(InputModelProfessor professor) 
+        {
+            if (ModelState.IsValid) 
+            {
+                var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+
+                u.DataNascimento = new DateTime();
+                u.DataNascimento = professor.DataNascimento;
+                u.Linkedin = professor.linkedin;
+                u.Sexo = professor.Genero;
+
+                Login(u);
+
+                _context.Add(u);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("UserPage");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CadastroEstudante(InputModelEstudante estudante)
+        {
+            if (ModelState.IsValid)
+            {
+                var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+
+                u.DataNascimento = estudante.DataNascimento;
+                u.Linkedin = estudante.linkedin;
+                u.Sexo = estudante.Genero;
+                u.CursoID = estudante.CursoID;
+
+                Login(u);
+
+                _context.Add(u);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("UserPage");
+            }
+            return View();
+        }
+
+        public IActionResult CadastroEstudante() 
+        {
+            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
+            return View();
         }
 
         // GET: Usuarios
@@ -24,6 +134,71 @@ namespace ControlIC.Controllers
         {
             var controlICContext = _context.Usuarios.Include(u => u.Curso);
             return View(await controlICContext.ToListAsync());
+        }
+
+        public IActionResult Cadastro() 
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Cadastro(Usuario usuario) 
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (usuario.Senha.Equals(usuario.ConfirmarSenha)) 
+                    {
+                        var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+
+                        var list = _context.Usuarios.ToList();
+                        var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
+                        
+                        usuario.TipoUsuario = u.TipoUsuario;
+
+                        if (usuarioCadastrado == null)
+                        {
+                            TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
+                            if (usuario.TipoUsuario == 1) 
+                            {
+                                return RedirectToAction("CadastroEstudante");
+                            }
+                            else 
+                            {
+                                return RedirectToAction("CadastroProfessor");
+                            }
+                        }
+                        else
+                        {
+                            ViewBag.Erro = "Email já utilizado";
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Erro = "Ocorreu algum erro ao tentar se cadastrar, tente novamente!";
+            }
+            return View();
+        }
+
+        public IActionResult EscolhaTipo() 
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("UserPage");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult EscolhaTipo(Usuario usuario) 
+        {
+            TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
+
+            return RedirectToAction("Cadastro");
         }
 
         // GET: Usuarios/Details/5
@@ -45,10 +220,84 @@ namespace ControlIC.Controllers
             return View(usuario);
         }
 
+        private async void Login(Usuario usuario)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, usuario.Nome),
+                new Claim(ClaimTypes.Role, "Usuario_Comum"),
+                new Claim(ClaimTypes.Email, usuario.Email)
+            };
+
+            var identidadeDeUsuario = new ClaimsIdentity(claims, "Login");
+            ClaimsPrincipal claimPrincipal = new ClaimsPrincipal(identidadeDeUsuario);
+
+            var propriedadesDeAutenticacao = new AuthenticationProperties
+            {
+                AllowRefresh = true,
+                ExpiresUtc = DateTime.Now.ToLocalTime().AddHours(2),
+                IsPersistent = true
+            };
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimPrincipal, propriedadesDeAutenticacao);
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public IActionResult UserPage()
+        {
+            return View();
+        }
+
+        public IActionResult LoginPage()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("UserPage");
+            }
+
+            return View();
+        }
+
+        //GET: Usuarios/Login
+        [HttpPost]
+        public IActionResult LoginPage(InputModel usuario)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var list = _context.Usuarios.ToList();
+                    var usuarioLogado = list.Where(a => a.Email.Equals(usuario.Email) && a.Senha.Equals(usuario.Senha)).FirstOrDefault();
+
+                    if (usuarioLogado != null)
+                    {
+                        Login(usuarioLogado);
+                        return RedirectToAction("UserPage");
+                    }
+                    else
+                    {
+                        ViewBag.Erro = "Usuário e / ou senha incorretos!";
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Erro = "Ocorreu algum erro ao tentar se logar, tente novamente!";
+            }
+            return View();
+        }
+
+
         // GET: Usuarios/Create
         public IActionResult Create()
         {
-            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "ID");
+            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
             return View();
         }
 

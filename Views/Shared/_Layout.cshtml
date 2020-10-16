@@ -1,4 +1,7 @@
 ﻿<!DOCTYPE html>
+
+@using Microsoft.AspNetCore.Http;
+
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,6 +13,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <label> @Context.Session.GetString("Nome") </label>
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ControlIC</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"

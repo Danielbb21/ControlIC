@@ -10,8 +10,10 @@ namespace ControlIC.Models
     public class Usuario
     {
         public int ID { get; set; }
+        [Required(ErrorMessage = "O nome deve ser inserido")]
         public string Nome { get; set; }
         public char Sexo { get; set; }
+        [DataType(DataType.Date)]
         public DateTime DataNascimento { get; set; }
         [Required(ErrorMessage = "O E-mail deve ser inserido.")]
         public string Email { get; set; }
@@ -22,12 +24,13 @@ namespace ControlIC.Models
         public DateTime AnoIngresso { get; set; }
         [Column(TypeName = "BLOB")]
         public byte[] ImgUsuario { get; set; }
-
         public virtual List<TitulacaoUsuario> TitulacaoUsuarios { get; set; }
         public virtual List<ProjetoCoorientador> projetoCoorientadores { get; set; }
         public virtual List<ProjetoEstudante> ProjetoEstudantes { get; set; }
-
         public int CursoID { get; set; }
         public virtual Curso Curso {get; set;}
+
+        [NotMapped]
+        public string ConfirmarSenha { get; set; }
     }
 }

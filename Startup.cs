@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ControlIC.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ControlIC
 {
@@ -26,6 +27,19 @@ namespace ControlIC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                //options.IdleTimeout = TimeSpan.FromSeconds(5);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => options.LoginPath = "/Usuario/Index");
+
 
             services.AddDbContext<ControlICContext>(options =>
                     options.UseOracle(Configuration.GetConnectionString("ControlICContext")));
@@ -49,7 +63,11 @@ namespace ControlIC
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

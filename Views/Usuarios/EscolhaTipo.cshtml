@@ -1,0 +1,41 @@
+﻿@model ControlIC.Models.Usuario
+
+@{
+    ViewData["Title"] = "EscolhaTipo";
+}
+
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+
+</style>
+
+
+
+<br>
+<center>
+    <h1>Cadastro</h1>
+    <br>
+    <br>
+    @using (Html.BeginForm())
+    {
+        @Html.ValidationSummary(true)
+
+        <fieldset style="width: 40%;">
+            <h4>Selecione o tipo de usuario</h4>
+            <br />
+            <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="TipoUsuario" value="1" checked="checked" />Estudante</label>
+            <label style="display:inline-block"><input style="display:block; margin: 0 auto"type="radio" name="TipoUsuario" value="2">Professor</label>
+            <br />
+            <br />
+            <br />
+            <br />
+            @Html.ValidationMessageFor(model => model.TipoUsuario)
+            <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;">Continuar</button>
+        </fieldset>
+    }
+</center>

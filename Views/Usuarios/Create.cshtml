@@ -52,15 +52,16 @@
                 <input asp-for="AnoIngresso" class="form-control" />
                 <span asp-validation-for="AnoIngresso" class="text-danger"></span>
             </div>
+            @*@<div class="form-group">
+            <label asp-for="ImgUsuario" class="control-label"></label>
+            <input asp-for="ImgUsuario" class="form-control" />
+            <span asp-validation-for="ImgUsuario" class="text-danger"></span>
+            </div>*@
             <div class="form-group">
-                <label asp-for="ImgUsuario" class="control-label"></label>
-                <input asp-for="ImgUsuario" class="form-control" />
-                <span asp-validation-for="ImgUsuario" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CursoID" class="control-label"></label>
+                <label asp-for="CursoID" class="control-label">Curso</label>
                 <select asp-for="CursoID" class ="form-control" asp-items="ViewBag.CursoID"></select>
             </div>
+            <hr/>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

@@ -1,0 +1,60 @@
+﻿@model ControlIC.Controllers.UsuariosController.InputModelProfessor
+@{
+    ViewData["Title"] = "Cadastro";
+}
+
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+</style>
+
+<br>
+<center>
+    <h1>Cadastro</h1>
+    <br>
+    <br>
+    @using (Html.BeginForm())
+    {
+        @Html.ValidationSummary(true)
+
+<fieldset style="width: 40%;">
+    <br />
+    <input type="date" class="form-control" name="Nome" placeholder="Digite seu nome..." />
+    @Html.ValidationMessageFor(model => model.DataNascimento)
+    <br />
+    <br />
+    <br />
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="TipoUsuario" value="M" checked="checked" />Male</label>
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="TipoUsuario" value="F">Female</label>
+    @Html.ValidationMessageFor(model => model.Genero)
+    <br />
+    <br />
+    <br />
+    <div class="form-group">
+        <label asp-for="TitulacaoID" class="control-label">Titulação</label>
+        <select asp-for="TitulacaoID" class="form-control" asp-items="ViewBag.TitulacaoID"></select>
+    </div>
+    <br />
+    <br />
+    <br />
+    <input type="text" class="form-control" name="Linkedin" placeholder="Link seu linkedin..." />
+    @Html.ValidationMessageFor(model => model.linkedin)
+    <br />
+    <br />
+    <br />
+    <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;">Finalizar cadastro</button>
+    <br /><br /><br />
+
+    @if (ViewBag.Erro != null)
+    {
+        <h3 style="padding: 20px; color: white; background-color: dimgray">
+            @ViewBag.Erro
+        </h3>
+    }
+</fieldset>
+    }
+</center>
