@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,12 +11,13 @@ namespace ControlIC.Models
     public class Usuario
     {
         public int ID { get; set; }
-        [Required(ErrorMessage = "O nome deve ser inserido")]
+        [Required(ErrorMessage = "O nome deve ser inserido.")]
         public string Nome { get; set; }
         public char Sexo { get; set; }
         [DataType(DataType.Date)]
         public DateTime DataNascimento { get; set; }
         [Required(ErrorMessage = "O E-mail deve ser inserido.")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "E-mail inválido.")]
         public string Email { get; set; }
         [Required(ErrorMessage = "A senha deve ser inserida.")]
         public string Senha { get; set; }

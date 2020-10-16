@@ -27,11 +27,11 @@ namespace ControlIC.Controllers
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "O e-mail deve ser inserido.")]
+            [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "E-mail inválido.")]
             public string Email { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "A senha deve ser inserida.")]
             [DataType(DataType.Password)]
             public string Senha { get; set; }
         }
@@ -113,6 +113,7 @@ namespace ControlIC.Controllers
                 var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
                 u.DataNascimento = estudante.DataNascimento;
+                u.AnoIngresso = estudante.DataIngresso;
                 u.Linkedin = estudante.linkedin;
                 u.Sexo = estudante.Genero;
                 u.CursoID = estudante.CursoID;

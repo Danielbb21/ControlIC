@@ -23,13 +23,14 @@
 
 <fieldset style="width: 40%;">
     <br />
-    <input type="date" class="form-control" name="Nome" placeholder="Digite seu nome..." />
+    <input type="date" class="form-control" name="DataNascimento" />
     @Html.ValidationMessageFor(model => model.DataNascimento)
     <br />
     <br />
     <br />
-    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="TipoUsuario" value="M" checked="checked" />Male</label>
-    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="TipoUsuario" value="F">Female</label>
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="M" checked="checked" />Male</label>
+    @Html.ValidationMessageFor(model => model.Genero)
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="F">Female</label>
     @Html.ValidationMessageFor(model => model.Genero)
     <br />
     <br />
