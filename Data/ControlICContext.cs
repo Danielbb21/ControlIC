@@ -26,7 +26,6 @@ namespace ControlIC.Data
         public DbSet<ProjetoEstudante> ProjetoEstudantes { get; set; }
         public DbSet<Recrutamento> Recrutamentos { get; set; }
         public DbSet<Titulacao> Titulacoes { get; set; }
-        public DbSet<TitulacaoUsuario> TitulacaoUsuarios { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
 
 

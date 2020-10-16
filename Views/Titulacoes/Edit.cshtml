@@ -19,6 +19,16 @@
                 <span asp-validation-for="NomeTitulacao" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="NomeInstituicao" class="control-label"></label>
+                <input asp-for="NomeInstituicao" class="form-control" />
+                <span asp-validation-for="NomeInstituicao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DataTitulacao" class="control-label"></label>
+                <input asp-for="DataTitulacao" class="form-control" />
+                <span asp-validation-for="DataTitulacao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

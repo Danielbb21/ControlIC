@@ -7,10 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControlIC.Data;
 using ControlIC.Models;
-using System.Diagnostics.Eventing.Reader;
-using Microsoft.AspNetCore.Http;
 
-namespace ControlIC.Views
+namespace ControlIC.Controllers
 {
     public class CursosController : Controller
     {
@@ -94,8 +92,6 @@ namespace ControlIC.Views
             {
                 return NotFound();
             }
-
-            HttpContext.Session.SetString("NOME", curso.Nome);
 
             if (ModelState.IsValid)
             {

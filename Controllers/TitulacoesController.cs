@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ControlIC.Data;
 using ControlIC.Models;
 
-namespace ControlIC.Views
+namespace ControlIC.Controllers
 {
     public class TitulacoesController : Controller
     {
@@ -54,7 +54,7 @@ namespace ControlIC.Views
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,NomeTitulacao")] Titulacao titulacao)
+        public async Task<IActionResult> Create([Bind("ID,NomeTitulacao,NomeInstituicao,DataTitulacao")] Titulacao titulacao)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace ControlIC.Views
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,NomeTitulacao")] Titulacao titulacao)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,NomeTitulacao,NomeInstituicao,DataTitulacao")] Titulacao titulacao)
         {
             if (id != titulacao.ID)
             {
