@@ -43,7 +43,7 @@ namespace ControlIC.Controllers
             public DateTime DataNascimento { get; set; }
 
             [Required]
-            public char Genero { get; set; }
+            public string Genero { get; set; }
 
             [Required]
             public int CursoID { get; set; }
@@ -110,7 +110,7 @@ namespace ControlIC.Controllers
 
                 u.DataNascimento = estudante.DataNascimento;
                 u.Linkedin = estudante.linkedin;
-                u.Sexo = estudante.Genero;
+                u.Sexo = estudante.Genero[0];
                 u.CursoID = estudante.CursoID;
 
                 Login(u);
@@ -150,15 +150,14 @@ namespace ControlIC.Controllers
                 {
                     if (usuario.Senha.Equals(usuario.ConfirmarSenha)) 
                     {
-                        var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
-
                         var list = _context.Usuarios.ToList();
                         var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
-                        
-                        usuario.TipoUsuario = u.TipoUsuario;
 
                         if (usuarioCadastrado == null)
                         {
+                            var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+                            usuario.TipoUsuario = u.TipoUsuario;
+
                             TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
                             if (usuario.TipoUsuario == 1) 
                             {
