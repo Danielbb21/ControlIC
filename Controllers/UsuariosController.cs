@@ -17,16 +17,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-namespace ControlIC.Controllers
-{
-    public class UsuariosController : Controller
-    {
+namespace ControlIC.Controllers {
+    public class UsuariosController : Controller {
         private readonly ControlICContext _context;
         public const string SessionKeyNome = "Nome";
         public const string SessionKeyID = "ID";
 
-        public class InputModel
-        {
+        public class InputModel {
             [Required(ErrorMessage = "O e-mail deve ser inserido.")]
             [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "E-mail inválido.")]
             public string Email { get; set; }
@@ -36,8 +33,7 @@ namespace ControlIC.Controllers
             public string Senha { get; set; }
         }
 
-        public class InputModelEstudante
-        {
+        public class InputModelEstudante {
             [Required]
             [DataType(DataType.Date)]
             public DateTime DataNascimento { get; set; }
@@ -56,8 +52,7 @@ namespace ControlIC.Controllers
             public Usuario usuario { get; set; }
         }
 
-        public class InputModelProfessor
-        {
+        public class InputModelProfessor {
             [Required]
             [DataType(DataType.Date)]
             public DateTime DataNascimento { get; set; }
@@ -72,22 +67,18 @@ namespace ControlIC.Controllers
             public Usuario usuario { get; set; }
         }
 
-        public UsuariosController(ControlICContext context)
-        {
+        public UsuariosController(ControlICContext context) {
             _context = context;
         }
 
-        public IActionResult CadastroProfessor(Usuario usuario) 
-        {
+        public IActionResult CadastroProfessor(Usuario usuario) {
             ViewData["TitulacaoID"] = new SelectList(_context.Titulacoes, "ID", "NomeTitulacao");
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CadastroProfessor(InputModelProfessor professor) 
-        {
-            if (ModelState.IsValid) 
-            {
+        public async Task<IActionResult> CadastroProfessor(InputModelProfessor professor) {
+            if (ModelState.IsValid) {
                 var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
                 u.DataNascimento = new DateTime();
@@ -106,10 +97,8 @@ namespace ControlIC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CadastroEstudante(InputModelEstudante estudante)
-        {
-            if (ModelState.IsValid)
-            {
+        public async Task<IActionResult> CadastroEstudante(InputModelEstudante estudante) {
+            if (ModelState.IsValid) {
                 var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
                 u.DataNascimento = estudante.DataNascimento;
@@ -128,69 +117,55 @@ namespace ControlIC.Controllers
             return RedirectToAction("CadastroEstudante");
         }
 
-        public IActionResult CadastroEstudante() 
-        {
+        public IActionResult CadastroEstudante() {
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
             return View();
         }
 
         // GET: Usuarios
-        public async Task<IActionResult> Index()
-        {
+        public async Task<IActionResult> Index() {
             var controlICContext = _context.Usuarios.Include(u => u.Curso);
             return View(await controlICContext.ToListAsync());
         }
 
-        public IActionResult Cadastro() 
-        {
+        public IActionResult Cadastro() {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Cadastro(Usuario usuario) 
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    if (usuario.Senha.Equals(usuario.ConfirmarSenha)) 
-                    {
+        public IActionResult Cadastro(Usuario usuario) {
+            try {
+                if (ModelState.IsValid) {
+                    if (usuario.Senha.Equals(usuario.ConfirmarSenha)) {
                         var list = _context.Usuarios.ToList();
                         var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
 
-                        if (usuarioCadastrado == null)
-                        {
+                        if (usuarioCadastrado == null) {
                             var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
                             usuario.TipoUsuario = u.TipoUsuario;
 
                             TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
-                            if (usuario.TipoUsuario == 1) 
-                            {
+                            if (usuario.TipoUsuario == 1) {
                                 return RedirectToAction("CadastroEstudante");
                             }
-                            else 
-                            {
+                            else {
                                 return RedirectToAction("CadastroProfessor");
                             }
                         }
-                        else
-                        {
+                        else {
                             ViewBag.Erro = "Email já utilizado";
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 ViewBag.Erro = "Ocorreu algum erro ao tentar se cadastrar, tente novamente!";
             }
             return View();
         }
 
-        public IActionResult EscolhaTipo() 
-        {
-            if (User.Identity.IsAuthenticated)
-            {
+        public IActionResult EscolhaTipo() {
+            if (User.Identity.IsAuthenticated) {
                 return RedirectToAction("UserPage");
             }
 
@@ -198,34 +173,29 @@ namespace ControlIC.Controllers
         }
 
         [HttpPost]
-        public IActionResult EscolhaTipo(Usuario usuario) 
-        {
+        public IActionResult EscolhaTipo(Usuario usuario) {
             TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
 
             return RedirectToAction("Cadastro");
         }
 
         // GET: Usuarios/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
+        public async Task<IActionResult> Details(int? id) {
+            if (id == null) {
                 return NotFound();
             }
 
             var usuario = await _context.Usuarios
                 .Include(u => u.Curso)
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (usuario == null)
-            {
+            if (usuario == null) {
                 return NotFound();
             }
 
             return View(usuario);
         }
 
-        private async void Login(Usuario usuario)
-        {
+        private async void Login(Usuario usuario) {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Nome),
@@ -236,8 +206,7 @@ namespace ControlIC.Controllers
             var identidadeDeUsuario = new ClaimsIdentity(claims, "Login");
             ClaimsPrincipal claimPrincipal = new ClaimsPrincipal(identidadeDeUsuario);
 
-            var propriedadesDeAutenticacao = new AuthenticationProperties
-            {
+            var propriedadesDeAutenticacao = new AuthenticationProperties {
                 AllowRefresh = true,
                 ExpiresUtc = DateTime.Now.ToLocalTime().AddHours(2),
                 IsPersistent = true
@@ -246,22 +215,18 @@ namespace ControlIC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimPrincipal, propriedadesDeAutenticacao);
         }
 
-        public async Task<IActionResult> Logout()
-        {
+        public async Task<IActionResult> Logout() {
             await HttpContext.SignOutAsync();
             return RedirectToAction("Index");
         }
 
         [Authorize]
-        public IActionResult UserPage()
-        {
+        public IActionResult UserPage() {
             return View();
         }
 
-        public IActionResult LoginPage()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
+        public IActionResult LoginPage() {
+            if (User.Identity.IsAuthenticated) {
                 return RedirectToAction("UserPage");
             }
 
@@ -270,28 +235,22 @@ namespace ControlIC.Controllers
 
         //GET: Usuarios/Login
         [HttpPost]
-        public IActionResult LoginPage(InputModel usuario)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
+        public IActionResult LoginPage(InputModel usuario) {
+            try {
+                if (ModelState.IsValid) {
                     var list = _context.Usuarios.ToList();
                     var usuarioLogado = list.Where(a => a.Email.Equals(usuario.Email) && a.Senha.Equals(usuario.Senha)).FirstOrDefault();
 
-                    if (usuarioLogado != null)
-                    {
+                    if (usuarioLogado != null) {
                         Login(usuarioLogado);
                         return RedirectToAction("UserPage");
                     }
-                    else
-                    {
+                    else {
                         ViewBag.Erro = "Usuário e / ou senha incorretos!";
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 ViewBag.Erro = "Ocorreu algum erro ao tentar se logar, tente novamente!";
             }
             return View();
@@ -299,8 +258,7 @@ namespace ControlIC.Controllers
 
 
         // GET: Usuarios/Create
-        public IActionResult Create()
-        {
+        public IActionResult Create() {
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
             return View();
         }
@@ -310,10 +268,8 @@ namespace ControlIC.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,Linkedin,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario)
-        {
-            if (ModelState.IsValid)
-            {
+        public async Task<IActionResult> Create([Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,Linkedin,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
+            if (ModelState.IsValid) {
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -321,18 +277,14 @@ namespace ControlIC.Controllers
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
             return View(usuario);
         }
-
         // GET: Usuarios/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
+        public async Task<IActionResult> Edit(int? id) {
+            if (id == null) {
                 return NotFound();
             }
 
             var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
-            {
+            if (usuario == null) {
                 return NotFound();
             }
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
@@ -344,28 +296,21 @@ namespace ControlIC.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,Linkedin,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario)
-        {
-            if (id != usuario.ID)
-            {
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,Linkedin,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
+            if (id != usuario.ID) {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
+            if (ModelState.IsValid) {
+                try {
                     _context.Update(usuario);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UsuarioExists(usuario.ID))
-                    {
+                catch (DbUpdateConcurrencyException) {
+                    if (!UsuarioExists(usuario.ID)) {
                         return NotFound();
                     }
-                    else
-                    {
+                    else {
                         throw;
                     }
                 }
@@ -376,18 +321,15 @@ namespace ControlIC.Controllers
         }
 
         // GET: Usuarios/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
+        public async Task<IActionResult> Delete(int? id) {
+            if (id == null) {
                 return NotFound();
             }
 
             var usuario = await _context.Usuarios
                 .Include(u => u.Curso)
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (usuario == null)
-            {
+            if (usuario == null) {
                 return NotFound();
             }
 
@@ -397,16 +339,14 @@ namespace ControlIC.Controllers
         // POST: Usuarios/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
+        public async Task<IActionResult> DeleteConfirmed(int id) {
             var usuario = await _context.Usuarios.FindAsync(id);
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UsuarioExists(int id)
-        {
+        private bool UsuarioExists(int id) {
             return _context.Usuarios.Any(e => e.ID == id);
         }
     }

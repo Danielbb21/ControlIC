@@ -17,7 +17,7 @@ namespace ControlIC.Models
         public string Email { get; set; }
         [Required(ErrorMessage = "A senha deve ser inserida.")]
         public string Senha { get; set; }
-
+        
         [Required(ErrorMessage = "O nome deve ser inserido.")]
         public string Nome { get; set; }
 
@@ -26,7 +26,7 @@ namespace ControlIC.Models
 
         [DataType(DataType.Date)]
         public DateTime DataNascimento { get; set; }
-
+        
         [Column(TypeName = "BLOB")]
         public byte[] ImgUsuario { get; set; }
         public int TipoUsuario { get; set; }
