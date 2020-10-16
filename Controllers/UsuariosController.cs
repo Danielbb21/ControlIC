@@ -313,7 +313,7 @@ namespace ControlIC.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "ID", usuario.CursoID);
+            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
             return View(usuario);
         }
 
@@ -330,7 +330,7 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
-            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "ID", usuario.CursoID);
+            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
             return View(usuario);
         }
 
@@ -366,7 +366,7 @@ namespace ControlIC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "ID", usuario.CursoID);
+            ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
             return View(usuario);
         }
 
