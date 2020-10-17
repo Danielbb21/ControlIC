@@ -18,6 +18,8 @@ using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ControlIC.Controllers {
     public class UsuariosController : Controller {
@@ -147,11 +149,27 @@ namespace ControlIC.Controllers {
                 u.ImgUsuario = ms.ToArray();
             }
 
-            Login(u);
-
             _context.Add(u);
             await _context.SaveChangesAsync();
+
+            Login(u);
+
             return RedirectToAction("UserPage");
+        }
+
+        public string Encriptar(string str) 
+        {
+            MD5 md5Hash = MD5.Create();
+            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(str));
+
+            StringBuilder sBuilder = new StringBuilder();
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            return sBuilder.ToString();
         }
 
         [HttpPost]
@@ -164,6 +182,10 @@ namespace ControlIC.Controllers {
                         var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
 
                         if (usuarioCadastrado == null) {
+
+                            usuario.Senha = Encriptar(usuario.Senha);
+                            usuario.ConfirmarSenha = Encriptar(usuario.ConfirmarSenha);
+
                             var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
                             usuario.TipoUsuario = u.TipoUsuario;
 
@@ -228,7 +250,8 @@ namespace ControlIC.Controllers {
             {
                 new Claim(ClaimTypes.Name, usuario.Nome),
                 new Claim(ClaimTypes.Role, "Usuario_Comum"),
-                new Claim(ClaimTypes.Email, usuario.Email)
+                new Claim(ClaimTypes.Email, usuario.Email),
+                new Claim(ClaimTypes.NameIdentifier, usuario.ID.ToString())
             };
 
             var identidadeDeUsuario = new ClaimsIdentity(claims, "Login");
@@ -249,8 +272,23 @@ namespace ControlIC.Controllers {
         }
 
         [Authorize]
-        public IActionResult UserPage() {
-            return View();
+        public async Task<IActionResult> UserPage() {
+            string identificador = HttpContext.User.Claims.Where(a => a.Type.Contains("nameidentifier")).FirstOrDefault().Value;
+            int? id = int.Parse(identificador);
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuarios.Include(u => u.Curso).FirstOrDefaultAsync(m => m.ID == id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return View(usuario);
         }
 
         public IActionResult LoginPage() {
@@ -266,6 +304,8 @@ namespace ControlIC.Controllers {
         public IActionResult LoginPage(InputModel usuario) {
             try {
                 if (ModelState.IsValid) {
+                    usuario.Senha = Encriptar(usuario.Senha);
+
                     var list = _context.Usuarios.ToList();
                     var usuarioLogado = list.Where(a => a.Email.Equals(usuario.Email) && a.Senha.Equals(usuario.Senha)).FirstOrDefault();
 
