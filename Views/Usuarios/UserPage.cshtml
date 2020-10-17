@@ -24,11 +24,11 @@
 
     .column {
         float: left;
-        padding: 10px;
+        
     }
 
     .left {
-        width: 25%;
+        width: 30%;
     }
 
     .right {
@@ -36,38 +36,38 @@
     }
 
     .center{
-        width: 40%
+        width: 45%
     }
 
 </style>
 
 <h1>Perfil do usuario</h1>
-
-<br>
-
+<hr />
+<br />
+<br />
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary(true)
 
-<div>
+<div style="align-items:center">
     <div class="row">
         <div class="column left">
-            <img src="@ViewBag.ImageData" style="width:256px;height:256px; border-radius:200px" />
+            <img src="@ViewBag.ImageData" style="border-style:solid; border-color:black; width:300px;height:300px; border-radius:200px" />
         </div>
              
         <br />
 
         <div class="column center">
-            <label style="font-size:larger; font-weight:bold">Nome: </label>
+            <label style="font-size:larger; font-weight:bold; width:98px">Nome: </label>
             <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.Nome)</label>
             <br />
-            <label style="font-size:larger; font-weight:bold">Email: </label>
+            <label style="font-size:larger; font-weight:bold;width:98px">Email: </label>
             <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.Email)</label>
             <br />
             <label style="font-size:larger; font-weight:bold">Data de Nascimento: </label>
-            <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.DataNascimento)</label>
+            <label class="label-display" style="width: 110px; text-align:center">@Html.DisplayFor(model => model.DataNascimento)</label>
             <br />
-            <label style="font-size:larger; font-weight:bold">@ViewBag.Especifico: </label>
+            <label style="font-size:larger; font-weight:bold; width:98px">@ViewBag.Especifico: </label>
             <label class="label-display" style="width: 200px">@ViewBag.ValorEspecifico</label>
         </div>
 
