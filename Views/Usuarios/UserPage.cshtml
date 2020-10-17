@@ -1,10 +1,95 @@
-﻿
+﻿@model ControlIC.Models.Usuario
+
 @{
-    ViewData["Title"] = "UserPage";
+    ViewData["Title"] = "Details";
 }
 
-<center>
-    <h2>Seja bem-vindo Sr(a). @User.Identity.Name</h2>
-    <br><br>
-    <a href="~/Usuarios/Logout" class="btn btn-warning">Realizar o logout</a>
-</center>
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+
+    .label-display {
+        font-size: larger;
+        margin: 20px;
+        border-style: groove;
+    }
+
+    .row{
+        display:flex;
+    }
+
+    .column {
+        float: left;
+        padding: 10px;
+    }
+
+    .left {
+        width: 25%;
+    }
+
+    .right {
+        width: 25%;
+    }
+
+    .center{
+        width: 40%
+    }
+
+</style>
+
+<h1>Perfil do usuario</h1>
+
+<br>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+
+<div>
+    <div class="row">
+        <div class="column left">
+            <img src="@ViewBag.ImageData" style="width:256px;height:256px; border-radius:200px" />
+        </div>
+             
+        <br />
+
+        <div class="column center">
+            <label style="font-size:larger; font-weight:bold">Nome: </label>
+            <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.Nome)</label>
+            <br />
+            <label style="font-size:larger; font-weight:bold">Email: </label>
+            <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.Email)</label>
+            <br />
+            <label style="font-size:larger; font-weight:bold">Data de Nascimento: </label>
+            <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.DataNascimento)</label>
+            <br />
+            <label style="font-size:larger; font-weight:bold">@ViewBag.Especifico: </label>
+            <label class="label-display" style="width: 200px">@ViewBag.ValorEspecifico</label>
+        </div>
+
+        <div class="column right">
+            <label style="font-size:larger; font-weight:bold">LinkedIn: </label>
+            <label class="label-display" style="width: 80px">@Html.DisplayFor(model => model.LinkedIn)</label>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <a href="~/Usuarios/Logout" class="btn btn-warning">Realizar o logout</a>
+            <a class="btn btn-warning">Editar</a>
+        </div>
+
+        <br />
+        <br />
+        <br />
+        <br />
+    </div>
+</div>
+}
