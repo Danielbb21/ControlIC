@@ -46,7 +46,7 @@ namespace ControlIC.Models
         [NotMapped]
         public string ConfirmarSenha { get; set; }
         [NotMapped]
-        public IList<IFormFile> Perfil { get; set; }
+        public IFormFile Perfil { get; set; }
 
     }
 }

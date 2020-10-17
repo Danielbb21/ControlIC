@@ -137,6 +137,7 @@ namespace ControlIC.Controllers {
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Cadastro(Usuario usuario) {
             try {
                 if (ModelState.IsValid) {
@@ -145,19 +146,19 @@ namespace ControlIC.Controllers {
                         var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
 
                         if (usuarioCadastrado == null) {
-                            IFormFile imagemEnviada = usuario.Perfil.FirstOrDefault();
+                            IFormFile imagemEnviada = usuario.Perfil;
                             if (imagemEnviada != null)
                             {
                                 MemoryStream ms = new MemoryStream();
                                 imagemEnviada.OpenReadStream().CopyTo(ms);
                                 usuario.ImgUsuario = ms.ToArray();
                             }
-                                var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+                            var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
                             usuario.TipoUsuario = u.TipoUsuario;
 
                             TempData["usuarios"] = JsonConvert.SerializeObject(usuario);
                             if (usuario.TipoUsuario == 1) {
-                                return RedirectToAction("CadastroEstudante");
+                                return RedirectToAction(nameof(CadastroEstudante));
                             }
                             else {
                                 return RedirectToAction("CadastroProfessor");
