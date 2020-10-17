@@ -17,7 +17,7 @@
     <h1>Cadastro</h1>
     <br>
     <br>
-    @using (Html.BeginForm())
+    @using (Html.BeginForm(null,null,FormMethod.Post))
     {
         @Html.ValidationSummary(true)
 

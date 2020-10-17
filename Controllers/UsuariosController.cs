@@ -81,7 +81,7 @@ namespace ControlIC.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> CadastroProfessor(InputModelProfessor professor) {
+        public IActionResult CadastroProfessor(InputModelProfessor professor) {
             if (ModelState.IsValid) {
                 var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
@@ -90,18 +90,15 @@ namespace ControlIC.Controllers {
                 u.LinkedIn = professor.LinkedIn;
                 u.Sexo = professor.Genero;
 
-                Login(u);
+                TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                _context.Add(u);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("UserPage");
+                return RedirectToAction("Profile");
             }
             return RedirectToAction("CadastroProfessor");
         }
 
         [HttpPost]
-        public async Task<IActionResult> CadastroEstudante(InputModelEstudante estudante) {
+        public IActionResult CadastroEstudante(InputModelEstudante estudante) {
             if (ModelState.IsValid) {
                 var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
@@ -111,12 +108,9 @@ namespace ControlIC.Controllers {
                 u.Sexo = estudante.Genero;
                 u.CursoID = estudante.CursoID;
 
-                Login(u);
+                TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                _context.Add(u);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("UserPage");
+                return RedirectToAction("Profile");
             }
             return RedirectToAction("CadastroEstudante");
         }
@@ -136,6 +130,30 @@ namespace ControlIC.Controllers {
             return View();
         }
 
+        public IActionResult Profile() 
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(Usuario usuario) 
+        {
+            Usuario u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+            IFormFile imagemEnviada = usuario.Perfil;
+            if (imagemEnviada != null)
+            {
+                MemoryStream ms = new MemoryStream();
+                await imagemEnviada.OpenReadStream().CopyToAsync(ms);
+                u.ImgUsuario = ms.ToArray();
+            }
+
+            Login(u);
+
+            _context.Add(u);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("UserPage");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Cadastro(Usuario usuario) {
@@ -146,13 +164,6 @@ namespace ControlIC.Controllers {
                         var usuarioCadastrado = list.Where(a => a.Email.Equals(usuario.Email)).FirstOrDefault();
 
                         if (usuarioCadastrado == null) {
-                            IFormFile imagemEnviada = usuario.Perfil;
-                            if (imagemEnviada != null)
-                            {
-                                MemoryStream ms = new MemoryStream();
-                                imagemEnviada.OpenReadStream().CopyTo(ms);
-                                usuario.ImgUsuario = ms.ToArray();
-                            }
                             var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
                             usuario.TipoUsuario = u.TipoUsuario;
 
@@ -203,6 +214,11 @@ namespace ControlIC.Controllers {
             if (usuario == null) {
                 return NotFound();
             }
+
+            string imreBase64Data = Convert.ToBase64String(usuario.ImgUsuario);
+            string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+            //Passing image data in viewbag to view  
+            ViewBag.ImageData = imgDataURL;
 
             return View(usuario);
         }

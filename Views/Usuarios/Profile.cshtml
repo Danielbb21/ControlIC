@@ -1,0 +1,40 @@
+﻿@model ControlIC.Models.Usuario
+@{
+    ViewData["Title"] = "Cadastro";
+}
+
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+</style>
+
+<br>
+
+<center>
+    <h1>Cadastro</h1>
+
+    @Html.ValidationSummary(true)
+
+
+    <hr />
+    <div>
+        <div class="col-md-4">
+            <!--enctype="multipart/form-data"-->
+            <form asp-action="Profile" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <input type="file" asp-for="Perfil"/>
+                    <span asp-validation-for="Perfil" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;">Finalizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</center>

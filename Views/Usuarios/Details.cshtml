@@ -4,6 +4,13 @@
     ViewData["Title"] = "Details";
 }
 
+<style>
+    /* This style sets the width of all images to 100%: */
+    img {
+        width: 100%;
+    }
+</style>
+
 <h1>Details</h1>
 
 <div>
@@ -62,7 +69,7 @@
             @Html.DisplayNameFor(model => model.ImgUsuario)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImgUsuario)
+            <img src="@ViewBag.ImageData" style="width:128px;height:128px;"/>
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Curso)
