@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ControlIC.Models.Projeto>
 
 @{
-    ViewData["Title"] = "Meus Projetos";
+    ViewData["Title"] = "Meus Projetos ";
 }
 
 
@@ -13,11 +13,28 @@
     }
 </style>
 
-<h1>@ViewData["Title"]</h1>
+<h1>@ViewData["Title"] [@ViewBag.QtdProjetos]</h1>
 
 <p>
     <a asp-action="Create">Criar Projeto</a>
 </p>
+<form asp-controller="Projetos" asp-action="Index" method="get">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="control-label">Pesquisar</label>
+                <input type="text" class="form-control" name="nomeProjeto">
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-group">
+                <label class="control-label" style="color:white;">Botão</label>
+                <input type="submit" value="OK" class="btn btn-primary form-control" />
+            </div>
+        </div>
+    </div>
+</form>
+
 
 @{
     if (ViewBag.ErroGeral != null)

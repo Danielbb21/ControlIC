@@ -23,7 +23,8 @@ namespace ControlIC.Controllers
 
 
         //[OK]GET: Projetos
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string nomeProjeto)
         {
             ViewBag.MsgGeral = null;
              
@@ -37,7 +38,17 @@ namespace ControlIC.Controllers
                 ViewBag.ErroGeral = "Ocorreu um erro tente novamente";
             }
 
+            //Retorna pesquisando pelo parametro
+            if(!String.IsNullOrEmpty(nomeProjeto))
+            {
+                var buscaProjetosProfessorLogado = _context.Projetos.Where(p => p.UsuarioID == idUser && p.Nome.ToUpper().Contains(nomeProjeto.ToUpper())).Include(p => p.CampoPesquisa).Include(p => p.Usuario);
+                ViewBag.QtdProjetos = buscaProjetosProfessorLogado.Count().ToString();
+                return View(await buscaProjetosProfessorLogado.ToListAsync());
+            }
+
+            //Retorna sem pesquisar pelo parametro
             var projetosProfessorLogado = _context.Projetos.Where(p => p.UsuarioID == idUser).Include(p => p.CampoPesquisa).Include(p => p.Usuario);
+            ViewBag.QtdProjetos = projetosProfessorLogado.Count().ToString();
             return View(await projetosProfessorLogado.ToListAsync());
         }
 
