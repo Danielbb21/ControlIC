@@ -91,6 +91,7 @@ namespace ControlIC.Controllers {
                 u.DataNascimento = professor.DataNascimento;
                 u.LinkedIn = professor.LinkedIn;
                 u.Sexo = professor.Genero;
+                u.TitulacaoID = professor.TitulacaoID;
 
                 TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
@@ -281,7 +282,7 @@ namespace ControlIC.Controllers {
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios.Include(u => u.Curso).FirstOrDefaultAsync(m => m.ID == id);
+            var usuario = await _context.Usuarios.Include(u => u.Curso).Include(t => t.Titulacao).FirstOrDefaultAsync(m => m.ID == id);
 
             if (usuario == null)
             {

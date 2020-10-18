@@ -1,0 +1,124 @@
+﻿@model IEnumerable<ControlIC.Models.Projeto>
+
+@{
+    ViewData["Title"] = "Meus Projetos";
+}
+
+
+<style>
+    .btnProjeto {
+        padding: 5px;
+        border-radius: 5px;
+        border-width: 1px;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create">Criar Projeto</a>
+</p>
+
+@{
+    if (ViewBag.ErroGeral != null)
+    {
+        <p class="text-danger">@ViewBag.ErroGeral</p>
+    }
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="text-center">
+                Icone
+            </th>
+            <th class="text-center">
+                Nome
+            </th>
+            <th class="text-center">
+                Descrição
+            </th>
+            <th class="text-center">
+                Status
+            </th>
+            <th class="text-center">
+                Concessão
+            </th>
+            <th class="text-center">
+                Campo de pesquisa
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.ToList().Count > 0)
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-center">
+                        @{
+                            string imreBase64Data = Convert.ToBase64String(item.ImgProjeto);
+                            string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                        }
+                        <img src="@imgDataURL" style="border-style:solid; border-color:black; border-width:1px; width:50px; height:50px; border-radius:100px" />
+                    </td>
+
+                    <td class="text-center align-middle">@item.Nome</td>
+
+                    @{
+                        int tam = item.Descricao.Length / 2;
+                        string i = item.Descricao;
+                        if (item.Descricao.Length >= 15)
+                        {
+                            i = item.Descricao.Substring(0, tam) + "...";
+                        }
+                        else
+                        {
+                            i = item.Descricao;
+                        }
+                        <td class="text-center align-middle">@i</td>
+                    }
+
+                    @{
+                        if (item.Status)
+                        {
+                            <td class="text-success text-center align-middle">Ativo</td>
+                        }
+                        else
+                        {
+                            <td class="text-danger text-center align-middle">Encerrado</td>
+                        }
+
+                        if (item.Aprovado)
+                        {
+                            <td class="text-success text-center align-middle">Autorizado</td>
+                        }
+                        else
+                        {
+                            <td class="text-danger text-center align-middle">Não Autorizado</td>
+                        }
+                    }
+
+                    <td class="text-center align-middle">
+                        @Html.DisplayFor(modelItem => item.CampoPesquisa.Nome)
+                    </td>
+
+                    <td class="align-middle">
+                        <a asp-action="Edit" class="btn-info btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Editar</a>
+                        <a asp-action="Details" class="btn-dark btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ver</a>
+                        <a asp-action="Delete" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Excluir</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center align-middle">
+                    Nenhum projeto encontrado
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
