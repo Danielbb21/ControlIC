@@ -27,8 +27,10 @@
     <input type="date" class="form-control" name="DataNascimento" placeholder="" />
     @Html.ValidationMessageFor(model => model.DataNascimento)
     <br />
-    <label>Data de Ingresso</label>
-    <input type="date" class="form-control" name="DataIngresso" placeholder="" />
+    <div class="form-group">
+        <label asp-for="DataIngresso" class="control-label">Ano de ingresso</label>
+        <select asp-for="DataIngresso" class="form-control" asp-items="ViewBag.AnoIngresso"></select>
+    </div>
     @Html.ValidationMessageFor(model => model.DataIngresso)
     <br />
     <br />

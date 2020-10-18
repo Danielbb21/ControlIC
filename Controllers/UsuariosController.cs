@@ -20,6 +20,8 @@ using System.Drawing;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Policy;
 
 namespace ControlIC.Controllers {
     public class UsuariosController : Controller {
@@ -45,8 +47,7 @@ namespace ControlIC.Controllers {
             public DateTime DataNascimento { get; set; }
 
             [Required]
-            [DataType(DataType.Date)]
-            public DateTime DataIngresso { get; set; }
+            public int DataIngresso { get; set; }
 
             [Required]
             public char Genero { get; set; }
@@ -54,12 +55,12 @@ namespace ControlIC.Controllers {
             [Required]
             public int CursoID { get; set; }
 
+            [RegularExpression(@"^(https?:\/\/)?([\w\-])+\.{1}linkedin.com([\/\w-]*)*\/?in\??\/?[^@\s/]*\/?", ErrorMessage = "Forneça o link para seu linkedin")]
             public string LinkedIn { get; set; }
-            public Usuario usuario { get; set; }
         }
 
         public class InputModelProfessor {
-            [Required]
+            [Required(ErrorMessage ="Data invalida")]
             [DataType(DataType.Date)]
             public DateTime DataNascimento { get; set; }
 
@@ -69,8 +70,8 @@ namespace ControlIC.Controllers {
             [Required]
             public int TitulacaoID { get; set; }
 
+            [RegularExpression(@"^(https?:\/\/)?([\w\-])+\.{1}linkedin.com([\/\w-]*)*\/?in\??\/?[^@\s/]*\/?", ErrorMessage ="Forneça o link para seu linkedin")]
             public string LinkedIn { get; set; }
-            public Usuario usuario { get; set; }
         }
 
         public UsuariosController(ControlICContext context) {
@@ -85,17 +86,20 @@ namespace ControlIC.Controllers {
         [HttpPost]
         public IActionResult CadastroProfessor(InputModelProfessor professor) {
             if (ModelState.IsValid) {
-                var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+                if(professor.DataNascimento < DateTime.Now && professor.DataNascimento.Year > 1900) 
+                {
+                    var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
-                u.DataNascimento = new DateTime();
-                u.DataNascimento = professor.DataNascimento;
-                u.LinkedIn = professor.LinkedIn;
-                u.Sexo = professor.Genero;
-                u.TitulacaoID = professor.TitulacaoID;
+                    u.DataNascimento = new DateTime();
+                    u.DataNascimento = professor.DataNascimento;
+                    u.LinkedIn = professor.LinkedIn;
+                    u.Sexo = professor.Genero;
+                    u.TitulacaoID = professor.TitulacaoID;
 
-                TempData["usuarios"] = JsonConvert.SerializeObject(u);
+                    TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                return RedirectToAction("Profile");
+                    return RedirectToAction("Profile");
+                }
             }
             return RedirectToAction("CadastroProfessor");
         }
@@ -103,22 +107,32 @@ namespace ControlIC.Controllers {
         [HttpPost]
         public IActionResult CadastroEstudante(InputModelEstudante estudante) {
             if (ModelState.IsValid) {
-                var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
+                if(estudante.DataNascimento < DateTime.Now && estudante.DataNascimento.Year > 1900) 
+                {
+                    var u = JsonConvert.DeserializeObject<Usuario>(TempData["usuarios"].ToString());
 
-                u.DataNascimento = estudante.DataNascimento;
-                u.AnoIngresso = estudante.DataIngresso;
-                u.LinkedIn = estudante.LinkedIn;
-                u.Sexo = estudante.Genero;
-                u.CursoID = estudante.CursoID;
+                    u.DataNascimento = estudante.DataNascimento;
+                    u.AnoIngresso = estudante.DataIngresso;
+                    u.LinkedIn = estudante.LinkedIn;
+                    u.Sexo = estudante.Genero;
+                    u.CursoID = estudante.CursoID;
 
-                TempData["usuarios"] = JsonConvert.SerializeObject(u);
+                    TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                return RedirectToAction("Profile");
+                    return RedirectToAction("Profile");
+                }
             }
             return RedirectToAction("CadastroEstudante");
         }
 
         public IActionResult CadastroEstudante() {
+            var listanos = new Dictionary<int, string>();
+            for(int i = 2000; i <= DateTime.Now.Year; i++) 
+            {
+                listanos.Add(i, i.ToString());
+            }
+
+            ViewBag.AnoIngresso = new SelectList(listanos, "Key", "Value") ;
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
             return View();
         }
@@ -242,7 +256,6 @@ namespace ControlIC.Controllers {
             string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
             //Passing image data in viewbag to view  
             ViewBag.ImageData = imgDataURL;
-
             return View(usuario);
         }
 

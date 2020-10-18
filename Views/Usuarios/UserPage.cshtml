@@ -72,8 +72,16 @@
         </div>
 
         <div class="column right">
-            <label style="font-size:larger; font-weight:bold">LinkedIn: </label>
-            <label class="label-display" style="width: 80px">@Html.DisplayFor(model => model.LinkedIn)</label>
+            @if (Model.LinkedIn != null)
+            {
+                <br/>
+                <label class="btn btn-warning"><a href="@Model.LinkedIn" class="text-dark" style="width: 80px">Ir para LinkedIn</a></label>
+            }
+            else 
+            {
+                <br/>
+                <br/>
+            }
             <br />
             <br />
             <br />

@@ -31,9 +31,7 @@ namespace ControlIC.Models
         [Column(TypeName = "BLOB")]
         public byte[] ImgUsuario { get; set; }
         public int TipoUsuario { get; set; }
-
-        [DataType(DataType.Date)]
-        public DateTime? AnoIngresso { get; set; }
+        public int? AnoIngresso { get; set; }
         public int? CursoID { get; set; }
         public virtual Curso Curso {get; set;}
 
