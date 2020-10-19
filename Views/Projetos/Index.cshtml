@@ -15,9 +15,13 @@
 
 <h1>@ViewData["Title"] [@ViewBag.QtdProjetos]</h1>
 
-<p>
-    <a asp-action="Create">Criar Projeto</a>
-</p>
+@{ 
+    if(ViewBag.TipoUsuario == 2)
+    {
+        <p><a asp-action="Create">Criar Projeto</a></p>
+    }
+}
+
 <form asp-controller="Projetos" asp-action="Index" method="get">
     <div class="row">
         <div class="col-md-4">
@@ -34,14 +38,7 @@
         </div>
     </div>
 </form>
-
-
-@{
-    if (ViewBag.ErroGeral != null)
-    {
-        <p class="text-danger">@ViewBag.ErroGeral</p>
-    }
-}
+<br />
 
 <table class="table">
     <thead>
@@ -56,13 +53,13 @@
                 Descrição
             </th>
             <th class="text-center">
+                Campo de pesquisa
+            </th>
+            <th class="text-center">
                 Status
             </th>
             <th class="text-center">
-                Concessão
-            </th>
-            <th class="text-center">
-                Campo de pesquisa
+                Autorização
             </th>
             <th></th>
         </tr>
@@ -96,7 +93,7 @@
                         }
                         <td class="text-center align-middle">@i</td>
                     }
-
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.CampoPesquisa.Nome)</td>
                     @{
                         if (item.Status)
                         {
@@ -117,15 +114,17 @@
                         }
                     }
 
-                    <td class="text-center align-middle">
-                        @Html.DisplayFor(modelItem => item.CampoPesquisa.Nome)
-                    </td>
-
-                    <td class="align-middle">
-                        <a asp-action="Edit" class="btn-info btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Editar</a>
-                        <a asp-action="Details" class="btn-dark btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ver</a>
-                        <a asp-action="Delete" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Excluir</a>
-                    </td>
+                <td class="align-middle">
+                    <a asp-action="Details" class="btn-dark btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ver</a>
+                    @{
+                        //Se a pessoa for orientadora do projeto vai ter essas opções
+                        if (item.UsuarioID == ViewBag.IdUsuario)
+                        {
+                            <a asp-action="Edit" class="btn-info btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Editar</a>
+                            <a asp-action="Delete" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Excluir</a>
+                        }
+                    }
+                </td>
                 </tr>
             }
         }
@@ -139,3 +138,5 @@
         }
     </tbody>
 </table>
+
+            

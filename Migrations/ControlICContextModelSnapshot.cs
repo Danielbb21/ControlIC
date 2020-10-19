@@ -289,8 +289,8 @@ namespace ControlIC.Migrations
                         .HasColumnType("NUMBER(10)")
                         .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime?>("AnoIngresso")
-                        .HasColumnType("TIMESTAMP(7)");
+                    b.Property<int?>("AnoIngresso")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int?>("CursoID")
                         .HasColumnType("NUMBER(10)");

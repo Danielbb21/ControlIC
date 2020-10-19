@@ -263,7 +263,7 @@ namespace ControlIC.Controllers {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Nome),
-                new Claim(ClaimTypes.Role, "Usuario_Comum"),
+                new Claim(ClaimTypes.Role, usuario.TipoUsuario.ToString()),
                 new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim(ClaimTypes.NameIdentifier, usuario.ID.ToString())
             };

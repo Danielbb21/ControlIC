@@ -4,7 +4,7 @@ using Oracle.EntityFrameworkCore.Metadata;
 
 namespace ControlIC.Migrations
 {
-    public partial class newinitialize : Migration
+    public partial class initialize : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -63,7 +63,7 @@ namespace ControlIC.Migrations
                     DataNascimento = table.Column<DateTime>(nullable: false),
                     ImgUsuario = table.Column<byte[]>(type: "BLOB", nullable: true),
                     TipoUsuario = table.Column<int>(nullable: false),
-                    AnoIngresso = table.Column<DateTime>(nullable: true),
+                    AnoIngresso = table.Column<int>(nullable: true),
                     CursoID = table.Column<int>(nullable: true),
                     TitulacaoID = table.Column<int>(nullable: true)
                 },

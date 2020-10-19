@@ -9,6 +9,8 @@ using ControlIC.Data;
 using ControlIC.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlIC.Controllers
 {
@@ -21,35 +23,76 @@ namespace ControlIC.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Procurar e preencher os projetos de um usuario professor
+        /// </summary>
+        private async Task ProcurarProjetoProfessoresAsync(List<Projeto> MeusProjetos, int idUser)
+        {
 
-        //[OK]GET: Projetos
+            //Pesquisa todos os projetos que o professor foi coorientador 
+            var listaCoorientadorProjetos = await _context.ProjetoCoorientadores.Where(c => c.UsuarioID == idUser).Include(p => p.Projeto).Where(p => p.Projeto.Aprovado == true).Where(P => P.Aprovado == true).Include(p => p.Projeto.CampoPesquisa).ToListAsync();
+            foreach (var c in listaCoorientadorProjetos)
+            {
+                MeusProjetos.Add(c.Projeto);
+            }
+
+            //Pesquisa todos os projetos que o professor foi orientador
+            var listaProjetosProfessorOrientador = await _context.Projetos.Where(p => p.UsuarioID == idUser).Include(p => p.CampoPesquisa).Include(p => p.Usuario).ToListAsync();
+            foreach (var p in listaProjetosProfessorOrientador)
+            {
+                MeusProjetos.Add(p);
+            }
+        }
+
+        /// <summary>
+        /// Procurar e preencher os projetos de um usuario estudante
+        /// </summary>
+        private async Task ProcurarProjetoEstudante(List<Projeto> MeusProjetos, int idUser)
+        {
+            //Pesquisa todos os projetos que o estudante foi aluno 
+            var listaEstudanteProjetos = await _context.ProjetoEstudantes.Where(c => c.UsuarioID == idUser).Include(p => p.Projeto).Where(p => p.Aprovado == true).Include(p => p.Projeto.CampoPesquisa).ToListAsync();
+            foreach (var c in listaEstudanteProjetos)
+            {
+                MeusProjetos.Add(c.Projeto);
+            }
+        }
+
+        //GET: Projetos
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Index(string nomeProjeto)
         {
-            ViewBag.MsgGeral = null;
-             
-            int idUser = 0;
-            try
-            {
-                idUser = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
+            //Captura todos os dados do usuario logado no banco 
+            int idUser = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
+            int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
+            ViewBag.TipoUsuario = tipoUser;
+            ViewBag.IdUsuario = idUser;
+
+            //Cria a lista de projetos que será exibida na tela index de projeto
+            List<Projeto> MeusProjetos = new List<Projeto>();
+
+            //Buscar projetos de acordo com o usuário
+            if (tipoUser == 2) {
+                await ProcurarProjetoProfessoresAsync(MeusProjetos, idUser);
             }
-            catch (Exception e)
+            else
             {
-                ViewBag.ErroGeral = "Ocorreu um erro tente novamente";
+                await ProcurarProjetoEstudante(MeusProjetos, idUser);
             }
 
-            //Retorna pesquisando pelo parametro
-            if(!String.IsNullOrEmpty(nomeProjeto))
+            //Pesquisa um conjunto de projetos pelo nome
+            if (!String.IsNullOrEmpty(nomeProjeto))
             {
-                var buscaProjetosProfessorLogado = _context.Projetos.Where(p => p.UsuarioID == idUser && p.Nome.ToUpper().Contains(nomeProjeto.ToUpper())).Include(p => p.CampoPesquisa).Include(p => p.Usuario);
-                ViewBag.QtdProjetos = buscaProjetosProfessorLogado.Count().ToString();
-                return View(await buscaProjetosProfessorLogado.ToListAsync());
+                if (MeusProjetos.Count > 0)
+                {
+                    var projetosBusca = MeusProjetos.Where(p => p.Nome.ToUpper().Contains(nomeProjeto.ToUpper()));
+                    ViewBag.QtdProjetos = projetosBusca.Count();
+                    return View(projetosBusca.ToList());
+                }
             }
-
-            //Retorna sem pesquisar pelo parametro
-            var projetosProfessorLogado = _context.Projetos.Where(p => p.UsuarioID == idUser).Include(p => p.CampoPesquisa).Include(p => p.Usuario);
-            ViewBag.QtdProjetos = projetosProfessorLogado.Count().ToString();
-            return View(await projetosProfessorLogado.ToListAsync());
+            //Pesquisa todos os projetos do orientador
+            ViewBag.QtdProjetos = MeusProjetos.Count();
+            return View(MeusProjetos);
         }
 
         // GET: Projetos/Details/5
@@ -72,20 +115,14 @@ namespace ControlIC.Controllers
             return View(projeto);
         }
 
-        //[OK] GET: Projetos/Create
+        //[OK]GET: Projetos/Create
         public IActionResult Create()
         {
-            //Tem que pegar qual o usuario logado no momento(A FAZER)
-            //int idUsuarioLogado = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
-            //var user = _context.Usuarios.FindAsync(idUsuarioLogado);
-
-            //ViewData["UsuarioID"] = user.Result.ID;
-
             ViewData["CampoPesquisaID"] = new SelectList(_context.CampoPesquisas, "ID", "Nome");
             return View();
         }
 
-        //[OK] POST: Projetos/Create
+        //[OK]POST: Projetos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Projeto projeto)
@@ -124,7 +161,7 @@ namespace ControlIC.Controllers
                             await imagemEnviada.OpenReadStream().CopyToAsync(ms);
                             projeto.ImgProjeto = ms.ToArray();
                         }
-                        catch(Exception e)
+                        catch
                         {
                             ModelState.AddModelError("ImgProjetoFormato", "Selecione um arquivo válido");
                         }
@@ -173,17 +210,17 @@ namespace ControlIC.Controllers
                 return NotFound();
             }
             ViewData["CampoPesquisaID"] = new SelectList(_context.CampoPesquisas, "ID", "Nome", projeto.CampoPesquisaID);
-            //ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "ID", "Email", projeto.UsuarioID);
+            TempData["ProjetoUsuarioID"] = projeto.UsuarioID;
+            ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "ID", "Email", projeto.UsuarioID);
             return View(projeto);
         }
 
         // POST: Projetos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Projeto projeto)
         {
+            //id = JsonConvert.DeserializeObject<int>(TempData["ProjetoUsuarioID"].ToString());
             if (id != projeto.ID)
             {
                 return NotFound();
@@ -228,7 +265,7 @@ namespace ControlIC.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CampoPesquisaID"] = new SelectList(_context.CampoPesquisas, "ID", "Nome", projeto.CampoPesquisaID);
-            //ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "ID", "Email", projeto.UsuarioID);
+            ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "ID", "Email", projeto.UsuarioID);
             return View(projeto);
         }
 

@@ -10,8 +10,8 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace ControlIC.Migrations
 {
     [DbContext(typeof(ControlICContext))]
-    [Migration("20201017212801_initialize2")]
-    partial class initialize2
+    [Migration("20201019012227_initialize")]
+    partial class initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -291,8 +291,8 @@ namespace ControlIC.Migrations
                         .HasColumnType("NUMBER(10)")
                         .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime?>("AnoIngresso")
-                        .HasColumnType("TIMESTAMP(7)");
+                    b.Property<int?>("AnoIngresso")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int?>("CursoID")
                         .HasColumnType("NUMBER(10)");
