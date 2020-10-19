@@ -1,0 +1,141 @@
+﻿@model ControlIC.Models.Usuario
+
+@{
+    ViewData["Title"] = "EditUser";
+}
+
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+
+    .input-noborder {
+        border: 0;
+        outline-width: 0;
+    }
+
+    tr.spaceUnder > td {
+        padding-bottom: 1em;
+    }
+
+    .label-display {
+        font-size: larger;
+        margin: 20px;
+        border: 3px solid #000;
+    }
+
+    .row {
+        display: flex;
+    }
+
+    .column {
+        float: left;
+    }
+
+    .left {
+        width: 30%;
+    }
+
+    .right {
+        width: 25%;
+    }
+
+    .center {
+        width: 45%
+    }
+</style>
+
+<h1>Perfil do usuario</h1>
+<hr />
+<br />
+<br />
+@Html.ValidationSummary(true)
+
+<form asp-action="EditUser" enctype="multipart/form-data" method="post">
+    <fieldset style="align-items:center">
+
+        <input type="hidden" asp-for="ID" />
+        <input type="hidden" asp-for="AnoIngresso" />
+        <input type="hidden" asp-for="Senha" />
+        <input type="hidden" asp-for="ImgUsuario" />
+        <input type="hidden" asp-for="TipoUsuario" />
+        <input type="hidden" asp-for="Sexo" />
+        <input type="hidden" asp-for="ProjetoEstudantes" />
+        <input type="hidden" asp-for="projetoCoorientadores" />
+
+        <div class="row">
+            <div class="column left">
+                <label for="file-input">
+                    <img src="@ViewBag.ImageData" id="output" style="background-color: black; border: 5px solid #000; border-color: black; width: 300px; height: 300px; border-radius: 200px" />
+                </label>
+                <input id="file-input" style="display:none" accept="image/*" onchange="loadFile(event)" type="file" asp-for="Perfil" />
+                <span asp-validation-for="Perfil" class="text-danger"></span>
+                <br />
+                <br/>
+                <div style="width:300px; text-align:center">
+                    <input type="submit" value="Atualizar" class="btn btn-primary" />
+                </div>
+            </div>
+
+            <br />
+
+            <table class="column center" style="border-collapse: separate; border-spacing: 35px;">
+                <tr>
+                    <th style="font-size:large">Nome:</th>
+                    <td class="label-display" colspan="2">
+                        <input class="input-noborder" asp-for="Nome" />
+                        <span asp-validation-for="Nome" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">Email:</th>
+                    <td class="label-display" colspan="2">
+                        <input class="input-noborder" asp-for="Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">Data de Nascimento:</th>
+                    <td class="label-display" colspan="2">
+                        <input class="input-noborder" asp-for="DataNascimento" />
+                        <span asp-validation-for="DataNascimento" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">@ViewBag.Especifico:</th>
+                    <td class="label-display" colspan="2">
+                        @if (ViewBag.Especifico == "Curso")
+                        {
+                            <select class="input-noborder" asp-for="CursoID" asp-items="ViewBag.CursoID"></select>
+                            <span asp-validation-for="CursoID" class="text-danger"></span>
+                        }
+                        else
+                        {
+                            <select class="input-noborder" asp-for="TitulacaoID" asp-items="ViewBag.TitulacaoID"></select>
+                            <span asp-validation-for="TitulacaoID" class="text-danger"></span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">LinkedIn:</th>
+                    <td class="label-display" colspan="2">
+                        <input class="input-noborder" asp-for="LinkedIn" />
+                        <span asp-validation-for="LinkedIn" class="text-danger"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </fieldset>
+</form>
+
+    <script>
+        var loadFile = function (event) {
+            var image = document.getElementById('output');
+            image.src = URL.createObjectURL(event.target.files[0]);
+        };
+    </script>
+
+

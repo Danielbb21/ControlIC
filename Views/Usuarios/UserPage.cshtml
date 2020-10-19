@@ -57,6 +57,14 @@
     <div class="row">
         <div class="column left">
             <img src="@ViewBag.ImageData" style="background-color: black; border: 5px solid #000; border-color: black; width: 300px; height: 300px; border-radius: 200px" />
+            <br />
+            <br />
+            <a href="~/Usuarios/Logout" class="btn btn-warning">Logout</a>
+            <a class="btn btn-warning" asp-action="EditUser">Editar Perfil</a>
+            @if (Model.LinkedIn != null)
+            {
+                <a href="@Model.LinkedIn" class="btn btn-warning">LinkedIn</a>
+            }
         </div>
 
         <br />
@@ -83,12 +91,7 @@
     <br />
     <br />
     <div style="width:300px">
-        <a href="~/Usuarios/Logout" class="btn btn-warning">Logout</a>
-        <a class="btn btn-warning">Editar Perfil</a>
-        @if (Model.LinkedIn != null)
-        {
-            <a href="@Model.LinkedIn" class="btn btn-warning">LinkedIn</a>
-        }
+        
     </div>
 </fieldset>
 }

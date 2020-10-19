@@ -382,6 +382,89 @@ namespace ControlIC.Controllers {
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
             return View(usuario);
         }
+
+        public async Task<IActionResult> EditUser()
+        {
+            string identificador = HttpContext.User.Claims.Where(a => a.Type.Contains("nameidentifier")).FirstOrDefault().Value;
+            int? id = int.Parse(identificador);
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuarios.Include(u => u.Curso).Include(t => t.Titulacao).FirstOrDefaultAsync(m => m.ID == id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            if (usuario.ImgUsuario == null)
+            {
+                ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+            }
+            else
+            {
+                string imreBase64Data = Convert.ToBase64String(usuario.ImgUsuario);
+                string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                //Passing image data in viewbag to view  
+                ViewBag.ImageData = imgDataURL;
+            }
+
+            if (usuario.TipoUsuario == 1)
+            {
+                ViewBag.Especifico = "Curso";
+                ViewBag.ValorEspecifico = usuario.Curso.Nome;
+                ViewBag.CursoID = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
+            }
+            else
+            {
+                ViewBag.Especifico = "Titulação";
+                ViewBag.ValorEspecifico = usuario.Titulacao.NomeTitulacao;
+                ViewBag.TitulacaoID = new SelectList(_context.Titulacoes, "ID", "NomeTitulacao");
+            }
+
+            return View(usuario);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditUser(Usuario usuario) 
+        {
+            if (ModelState.IsValid)
+            {
+                if (usuario.DataNascimento < DateTime.Now && usuario.DataNascimento.Year > 1900)
+                {
+                    IFormFile imagemEnviada = usuario.Perfil;
+                    if (imagemEnviada != null)
+                    {
+                        MemoryStream ms = new MemoryStream();
+                        await imagemEnviada.OpenReadStream().CopyToAsync(ms);
+                        usuario.ImgUsuario = ms.ToArray();
+                    }
+
+                    try
+                    {
+                        _context.Update(usuario);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!UsuarioExists(usuario.ID))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(UserPage));
+                }
+            }
+            return RedirectToAction(nameof(EditUser));
+        }
+
         // GET: Usuarios/Edit/5
         public async Task<IActionResult> Edit(int? id) {
             if (id == null) {

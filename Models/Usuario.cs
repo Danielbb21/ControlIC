@@ -23,6 +23,8 @@ namespace ControlIC.Models
         public string Nome { get; set; }
 
         public char Sexo { get; set; }
+
+        [RegularExpression(@"^(https?:\/\/)?([\w\-])+\.{1}linkedin.com([\/\w-]*)*\/?in\??\/?[^@\s/]*\/?", ErrorMessage = "Forneça o link para seu linkedin")]
         public string LinkedIn { get; set; }
 
         [DataType(DataType.Date)]
