@@ -12,10 +12,14 @@
         margin-left: 1%;
     }
 
+    tr.spaceUnder > td {
+        padding-bottom: 1em;
+    }
+
     .label-display {
         font-size: larger;
         margin: 20px;
-        border-style: groove;
+        border: 3px solid #000;
     }
 
     .row{
@@ -49,55 +53,42 @@
 {
     @Html.ValidationSummary(true)
 
-<div style="align-items:center">
+<fieldset style="align-items:center">
     <div class="row">
         <div class="column left">
-            <img src="@ViewBag.ImageData" style="border-style:solid; border-color:black; width:300px;height:300px; border-radius:200px" />
-        </div>
-             
-        <br />
-
-        <div class="column center">
-            <label style="font-size:larger; font-weight:bold; width:98px">Nome: </label>
-            <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.Nome)</label>
-            <br />
-            <label style="font-size:larger; font-weight:bold;width:98px">Email: </label>
-            <label class="label-display" style="width: 200px">@Html.DisplayFor(model => model.Email)</label>
-            <br />
-            <label style="font-size:larger; font-weight:bold">Data de Nascimento: </label>
-            <label class="label-display" style="width: 110px; text-align:center">@Html.DisplayFor(model => model.DataNascimento)</label>
-            <br />
-            <label style="font-size:larger; font-weight:bold; width:98px">@ViewBag.Especifico: </label>
-            <label class="label-display" style="width: 200px">@ViewBag.ValorEspecifico</label>
-        </div>
-
-        <div class="column right">
-            @if (Model.LinkedIn != null)
-            {
-                <br/>
-                <label class="btn btn-warning"><a href="@Model.LinkedIn" class="text-dark" style="width: 80px">Ir para LinkedIn</a></label>
-            }
-            else 
-            {
-                <br/>
-                <br/>
-            }
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <a href="~/Usuarios/Logout" class="btn btn-warning">Realizar o logout</a>
-            <a class="btn btn-warning">Editar</a>
+            <img src="@ViewBag.ImageData" style="background-color: black; border: 5px solid #000; border-color: black; width: 300px; height: 300px; border-radius: 200px" />
         </div>
 
         <br />
-        <br />
-        <br />
-        <br />
+
+        <table class="column center" style="border-collapse: separate; border-spacing: 35px;">
+            <tr>
+                <th style="font-size:large">Nome:</th>
+                <td class="label-display" colspan="2">@Html.DisplayFor(model => model.Nome)</td>
+            </tr>
+            <tr>
+                <th style="font-size:large">Email:</th>
+                <td class="label-display" colspan="2">@Html.DisplayFor(model => model.Email)</td>
+            </tr>
+            <tr>
+                <th style="font-size:large">Data de Nascimento:</th>
+                <td class="label-display" colspan="2">@Html.DisplayFor(model => model.DataNascimento)</td>
+            </tr>
+            <tr>
+                <th style="font-size:large">@ViewBag.Especifico:</th>
+                <td class="label-display" colspan="2">@ViewBag.ValorEspecifico</td>
+            </tr>
+        </table>
     </div>
-</div>
+    <br />
+    <br />
+    <div style="width:300px">
+        <a href="~/Usuarios/Logout" class="btn btn-warning">Logout</a>
+        <a class="btn btn-warning">Editar Perfil</a>
+        @if (Model.LinkedIn != null)
+        {
+            <a href="@Model.LinkedIn" class="btn btn-warning">LinkedIn</a>
+        }
+    </div>
+</fieldset>
 }

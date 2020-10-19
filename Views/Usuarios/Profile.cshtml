@@ -10,6 +10,15 @@
         margin-top: 1%;
         margin-left: 1%;
     }
+
+    .image-display {
+        border: 5px solid #000; 
+        width:300px; 
+        height: 300px; 
+        border-radius: 200px;
+        background-color:black;
+    }
+
 </style>
 
 <br>
@@ -27,7 +36,13 @@
             <form asp-action="Profile" enctype="multipart/form-data" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <input type="file" asp-for="Perfil"/>
+                    <label for="file-input">
+                        <img class="image-display" src="/Imagens/Placeholder_Perfil.png" id="output"/>
+                    </label>
+                    <br/>
+                    <br/>
+                    <label style="font-weight:bold; font-size:large">Escolha uma foto de perfil</label>
+                    <input id="file-input" style="display:none" accept="image/*" onchange="loadFile(event)" type="file" asp-for="Perfil" />
                     <span asp-validation-for="Perfil" class="text-danger"></span>
                 </div>
 
@@ -38,3 +53,10 @@
         </div>
     </div>
 </center>
+
+<script>
+var loadFile = function(event) {
+	var image = document.getElementById('output');
+	image.src = URL.createObjectURL(event.target.files[0]);
+};
+</script>
