@@ -68,7 +68,7 @@ namespace ControlIC.Controllers {
             public char Genero { get; set; }
 
             [Required]
-            public int TitulacaoID { get; set; }
+            public Titulacao Titulacao { get; set; }
 
             [RegularExpression(@"^(https?:\/\/)?([\w\-])+\.{1}linkedin.com([\/\w-]*)*\/?in\??\/?[^@\s/]*\/?", ErrorMessage ="Forneça o link para seu linkedin")]
             public string LinkedIn { get; set; }
@@ -79,12 +79,11 @@ namespace ControlIC.Controllers {
         }
 
         public IActionResult CadastroProfessor(Usuario usuario) {
-            ViewData["TitulacaoID"] = new SelectList(_context.Titulacoes, "ID", "NomeTitulacao");
             return View();
         }
 
         [HttpPost]
-        public IActionResult CadastroProfessor(InputModelProfessor professor) {
+        public async Task<IActionResult> CadastroProfessor(InputModelProfessor professor) {
             if (ModelState.IsValid) {
                 if(professor.DataNascimento < DateTime.Now && professor.DataNascimento.Year > 1900) 
                 {
@@ -94,7 +93,11 @@ namespace ControlIC.Controllers {
                     u.DataNascimento = professor.DataNascimento;
                     u.LinkedIn = professor.LinkedIn;
                     u.Sexo = professor.Genero;
-                    u.TitulacaoID = professor.TitulacaoID;
+
+                    _context.Titulacoes.Add(professor.Titulacao);
+                    await _context.SaveChangesAsync();
+
+                    u.TitulacaoID = professor.Titulacao.ID;
 
                     TempData["usuarios"] = JsonConvert.SerializeObject(u);
 

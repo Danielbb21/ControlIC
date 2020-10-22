@@ -37,9 +37,14 @@
     <br />
     <br />
     <div class="form-group">
-        <label asp-for="TitulacaoID" class="control-label">Titulação</label>
-        <select asp-for="TitulacaoID" class="form-control" asp-items="ViewBag.TitulacaoID"></select>
+        <label asp-for="Titulacao.NomeTitulacao" class="control-label">Titulação</label>
+        <select asp-for="Titulacao.NomeTitulacao" class="form-control">
+            <option value="Mestre">Mestre</option>
+            <option value="Doutor">Doutor</option>
+        </select>
     </div>
+    <label class="control-label">Instituição</label>
+    <input type="text" class="form-control" asp-for="Titulacao.NomeInstituicao"/>
     <br />
     <br />
     <br />
