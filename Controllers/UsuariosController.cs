@@ -37,8 +37,6 @@ namespace ControlIC.Controllers {
             [Required(ErrorMessage = "A senha deve ser inserida.")]
             [DataType(DataType.Password)]
             public string Senha { get; set; }
-
-            
         }
 
         public class InputModelEstudante {
@@ -315,6 +313,8 @@ namespace ControlIC.Controllers {
                 string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
                 //Passing image data in viewbag to view  
                 ViewBag.ImageData = imgDataURL;
+
+                HttpContext.Session.SetString("UserPerfil", imgDataURL);
             }
             
             if (usuario.TipoUsuario == 1) 
@@ -462,6 +462,11 @@ namespace ControlIC.Controllers {
                             throw;
                         }
                     }
+
+                    await HttpContext.SignOutAsync();
+
+                    Login(usuario);
+
                     return RedirectToAction(nameof(UserPage));
                 }
             }

@@ -12,23 +12,33 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <label> @Context.Session.GetString("Nome") </label>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Usuarios" asp-action="LoginPage">ControlIC</a>
+                <a class="navbar-brand" asp-area="" style="color:white; font-weight:bold" asp-controller="Usuarios" asp-action="LoginPage">CONTROL IC</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
-                        
+
                         <li class="nav-item">
                             <!--<a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="LoginPage">Usuário</a> -->
                         </li>
                     </ul>
                 </div>
-            </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div style="margin-right:10px">
+                        <label style="display:inline-block; margin:0; color:white; font-weight:bold; text-align:right">@User.Identity.Name<label style="display:block">Senai Cimatec</label></label>
+                    </div>
+                    <div style="float:right">
+                        <a asp-action="UserPage">
+                            <img src="@Context.Session.GetString("UserPerfil")" style="width:60px; height: 60px; border-radius: 200px" />
+                        </a>
+                    </div>
+                }
+             </div>
         </nav>
     </header>
     <div class="container">
