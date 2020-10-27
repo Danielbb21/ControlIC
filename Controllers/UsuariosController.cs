@@ -394,15 +394,16 @@ namespace ControlIC.Controllers {
 
         public void EnviarEmail(Usuario usuario) 
         {
-            string a = Guid.NewGuid().ToString();
+            string token = Guid.NewGuid().ToString();
+
             MailMessage m = new MailMessage(new MailAddress("Piuser3012@hotmail.com", "Cadastro"), new MailAddress(usuario.Email));
             m.Subject = "Confirmação de Email";
             m.Body = string.Format(@"Dear {0},
                                     <br/> Thank you for your registration, please click on the
                                     below link to complete your registration:<br/><br/> <a href=""https://localhost:44346/Usuarios/Profile?id={1}"" title=User Email Confirm>Link</a>",
-                                    usuario.Nome, a);
+                                    usuario.Nome, token);
 
-            TempData["token"] = a;
+            TempData["token"] = token;
 
             m.IsBodyHtml = true;
             SmtpClient smtp = new SmtpClient("smtp-mail.outlook.com", 587);
