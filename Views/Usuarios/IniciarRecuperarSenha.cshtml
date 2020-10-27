@@ -1,0 +1,44 @@
+﻿@model ControlIC.Controllers.UsuariosController.InputModelEmail
+
+@{
+    ViewData["Title"] = "RecuperarSenha";
+}
+
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+</style>
+
+<br>
+<center>
+    <h1>Recuperar Senha</h1>
+    <br>
+    <br>
+    @using (Html.BeginForm())
+    {
+        @Html.ValidationSummary(true)
+
+        <fieldset style="width: 40%;">
+            <br />
+            <input type="text" class="form-control" name="Email" placeholder="Digite seu email..." />
+            @Html.ValidationMessageFor(model => model.Email)
+            <br />
+            <br />
+            <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;"> Enviar</button>
+            <br />
+
+            <br /><br />
+
+            @if (ViewBag.Erro != null)
+            {
+                <h3 style="padding: 20px; color: white; background-color: dimgray">
+                    @ViewBag.Erro
+                </h3>
+            }
+        </fieldset>
+    }
+</center>

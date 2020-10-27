@@ -1,0 +1,48 @@
+﻿@model ControlIC.Controllers.UsuariosController.InputModelSenha
+
+@{
+    ViewData["Title"] = "RecuperarSenha";
+}
+
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+</style>
+
+<br>
+<center>
+    <h1>Recuperar Senha</h1>
+    <br>
+    <br>
+    @using (Html.BeginForm())
+    {
+        @Html.ValidationSummary(true)
+
+        <fieldset style="width: 40%;">
+            <br />
+            <input type="password" class="form-control" name="Senha" placeholder="Digite sua nova senha..." />
+            @Html.ValidationMessageFor(model => model.Senha)
+            <br />
+            <br />
+            <input type="password" class="form-control" name="ConfirmarSenha" placeholder="Confirme sua nova senha..." />
+            @Html.ValidationMessageFor(model => model.ConfirmarSenha)
+            <br />
+            <br />
+            <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;"> Finalizar</button>
+            <br />
+
+            <br /><br />
+
+            @if (ViewBag.Erro != null)
+            {
+                <h3 style="padding: 20px; color: white; background-color: dimgray">
+                    @ViewBag.Erro
+                </h3>
+            }
+        </fieldset>
+    }
+</center>

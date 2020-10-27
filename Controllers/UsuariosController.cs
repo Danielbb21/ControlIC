@@ -44,6 +44,13 @@ namespace ControlIC.Controllers {
             public string Senha { get; set; }
         }
 
+        public class InputModelEmail 
+        {
+            [Required(ErrorMessage = "O E-mail deve ser inserido.")]
+            [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "E-mail inválido.")]
+            public string Email { get; set; }
+        }
+
         public class InputModelEstudante {
             [Required]
             [DataType(DataType.Date)]
@@ -77,6 +84,18 @@ namespace ControlIC.Controllers {
             public string LinkedIn { get; set; }
         }
 
+        public class InputModelSenha 
+        {
+            [Required]
+            [DataType(DataType.Password)]
+            public string Senha { get; set; }
+
+            [Required]
+            [DataType(DataType.Password)]
+            [Compare("Senha", ErrorMessage = "A senhas não estão iguais.")]
+            public string ConfirmarSenha { get; set; }
+        }
+
         public UsuariosController(ControlICContext context) {
             _context = context;
         }
@@ -104,7 +123,7 @@ namespace ControlIC.Controllers {
 
                     TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                    EnviarEmail(u);
+                    EnviarEmail(u.Email, "Cadastro", "Obrigado por se registrar. Siga o link para finalizar o cadastro:", "https://localhost:44346/Usuarios/Profile?id=");
 
                     return RedirectToAction("ConfirmarEmail");
                 }
@@ -127,7 +146,7 @@ namespace ControlIC.Controllers {
 
                     TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                    EnviarEmail(u);
+                    EnviarEmail(u.Email, "Cadastro" ,"Obrigado por se registrar. Siga o link para finalizar o cadastro:", "https://localhost:44346/Usuarios/Profile?id=");
 
                     return RedirectToAction("ConfirmarEmail");
                 }
@@ -157,9 +176,66 @@ namespace ControlIC.Controllers {
             return View();
         }
 
+        public IActionResult IniciarRecuperarSenha() 
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult IniciarRecuperarSenha(InputModelEmail usuario) 
+        {
+            if(ModelState.IsValid) 
+            {
+                var u = _context.Usuarios.Where(m => m.Email == usuario.Email).FirstOrDefault();
+
+                if(u == null) 
+                {
+                    ViewBag.Erro = "Email não está inserido no site.";
+                    return View();
+                }
+
+                TempData["EmailRequisitado"] = usuario.Email;
+                EnviarEmail(usuario.Email, "Recuperar senha" ,"Houve uma requisição para mudar sua senha. Siga o link para prosseguir nesse processo:", "https://localhost:44346/Usuarios/RecuperarSenha?id=");
+                return RedirectToAction(nameof(ConfirmarEmail));
+            }
+
+            return View();
+        }
+
+        public IActionResult RecuperarSenha(string id)
+        {
+            if (TempData["token"] != null || id != TempData["token"] as string)
+            {
+                return View();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecuperarSenha(InputModelSenha senhaRequisitada) 
+        {
+            if (ModelState.IsValid) 
+            {
+                senhaRequisitada.Senha = Encriptar(senhaRequisitada.Senha);
+                senhaRequisitada.ConfirmarSenha = Encriptar(senhaRequisitada.ConfirmarSenha);
+
+                string email = TempData["EmailRequisitado"].ToString();
+
+                var usuario = await _context.Usuarios.Include(u => u.Curso).Include(t => t.Titulacao).FirstOrDefaultAsync(m => m.Email == email);
+                usuario.Senha = senhaRequisitada.Senha;
+
+                _context.Update(usuario);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(LoginPage));
+            }
+            return View();
+        }
+
         public IActionResult Profile(String id) 
         {
-            if (TempData["token"] == null || id != TempData["token"] as string)
+            if (TempData["token"] != null || id != TempData["token"] as string)
             {
                 return View();
             }
@@ -392,16 +468,19 @@ namespace ControlIC.Controllers {
             return View();
         }
 
-        public void EnviarEmail(Usuario usuario) 
+        public void EnviarEmail(string email, string titulo, string mensagem, string link) 
         {
             string token = Guid.NewGuid().ToString();
 
-            MailMessage m = new MailMessage(new MailAddress("Piuser3012@hotmail.com", "Cadastro"), new MailAddress(usuario.Email));
+            MailMessage m = new MailMessage(new MailAddress("Piuser3012@hotmail.com", titulo), new MailAddress(email));
             m.Subject = "Confirmação de Email";
-            m.Body = string.Format(@"Dear {0},
-                                    <br/> Thank you for your registration, please click on the
-                                    below link to complete your registration:<br/><br/> <a href=""https://localhost:44346/Usuarios/Profile?id={1}"" title=User Email Confirm>Link</a>",
-                                    usuario.Nome, token);
+            m.Body = string.Format(@"Querido usuário,
+                                    <br/> 
+                                    {0}
+                                    <br/>
+                                    <br/> 
+                                    <a href=""{1}{2}"" title=User Email Confirm>Link</a>",
+                                    mensagem, link ,token);
 
             TempData["token"] = token;
 
@@ -587,5 +666,6 @@ namespace ControlIC.Controllers {
         private bool UsuarioExists(int id) {
             return _context.Usuarios.Any(e => e.ID == id);
         }
+
     }
 }
