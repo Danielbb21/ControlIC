@@ -22,6 +22,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Policy;
+using System.Net.Mail;
+using System.Net;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Identity;
 
 namespace ControlIC.Controllers {
     public class UsuariosController : Controller {
@@ -99,7 +104,9 @@ namespace ControlIC.Controllers {
 
                     TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                    return RedirectToAction("Profile");
+                    EnviarEmail(u);
+
+                    return RedirectToAction("ConfirmarEmail");
                 }
             }
             return RedirectToAction("CadastroProfessor");
@@ -120,7 +127,9 @@ namespace ControlIC.Controllers {
 
                     TempData["usuarios"] = JsonConvert.SerializeObject(u);
 
-                    return RedirectToAction("Profile");
+                    EnviarEmail(u);
+
+                    return RedirectToAction("ConfirmarEmail");
                 }
             }
             return RedirectToAction("CadastroEstudante");
@@ -148,9 +157,14 @@ namespace ControlIC.Controllers {
             return View();
         }
 
-        public IActionResult Profile() 
+        public IActionResult Profile(String id) 
         {
-            return View();
+            if (TempData["token"] == null || id != TempData["token"] as string)
+            {
+                return View();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -169,6 +183,8 @@ namespace ControlIC.Controllers {
             await _context.SaveChangesAsync();
 
             Login(u);
+
+            TempData["token"] = null;
 
             return RedirectToAction("UserPage");
         }
@@ -210,7 +226,7 @@ namespace ControlIC.Controllers {
                                 return RedirectToAction(nameof(CadastroEstudante));
                             }
                             else {
-                                return RedirectToAction("CadastroProfessor");
+                                return RedirectToAction(nameof(CadastroProfessor));
                             }
                         }
                         else {
@@ -364,11 +380,36 @@ namespace ControlIC.Controllers {
             return View();
         }
 
+        public IActionResult ConfirmarEmail(string email) 
+        {
+            ViewBag.Email = email;
+            return View();
+        }
 
         // GET: Usuarios/Create
         public IActionResult Create() {
             ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
             return View();
+        }
+
+        public void EnviarEmail(Usuario usuario) 
+        {
+            string a = Guid.NewGuid().ToString();
+            MailMessage m = new MailMessage(new MailAddress("Piuser3012@hotmail.com", "Cadastro"), new MailAddress(usuario.Email));
+            m.Subject = "Confirmação de Email";
+            m.Body = string.Format(@"Dear {0},
+                                    <br/> Thank you for your registration, please click on the
+                                    below link to complete your registration:<br/><br/> <a href=""https://localhost:44346/Usuarios/Profile?id={1}"" title=User Email Confirm>Link</a>",
+                                    usuario.Nome, a);
+
+            TempData["token"] = a;
+
+            m.IsBodyHtml = true;
+            SmtpClient smtp = new SmtpClient("smtp-mail.outlook.com", 587);
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = new NetworkCredential("Piuser3012@hotmail.com", "Opioinanimus123");
+            smtp.EnableSsl = true;
+            smtp.Send(m);
         }
 
         // POST: Usuarios/Create
