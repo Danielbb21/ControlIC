@@ -26,5 +26,9 @@ namespace ControlIC.Models
         public virtual List<ProjetoCoorientador> projetoCoorientadores { get; set; }
         public virtual List<ProjetoEstudante> ProjetoEstudantes { get; set; }
 
+
+        [NotMapped]
+        public string EmailConvite { get; set; }
+
     }
 }

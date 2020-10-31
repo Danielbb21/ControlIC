@@ -92,7 +92,7 @@ namespace ControlIC.Controllers {
 
             [Required]
             [DataType(DataType.Password)]
-            [Compare("Senha", ErrorMessage = "A senhas não estão iguais.")]
+            [Compare("Senha", ErrorMessage = "As senhas não estão iguais.")]
             public string ConfirmarSenha { get; set; }
         }
 

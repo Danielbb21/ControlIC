@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Mail;
+using System.Net;
 
 namespace ControlIC.Controllers
 {
@@ -115,6 +117,145 @@ namespace ControlIC.Controllers
             return View(projeto);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Details(Projeto p) 
+        {
+            string email = p.EmailConvite;
+            var usuario = _context.Usuarios.Where(u => u.Email == email).FirstOrDefault();
+
+            int ID = 0;
+            string Token;
+
+            if (!p.Aprovado) 
+            {
+                TempData["Aviso"] = "Precisa estar aprovado para enviar convites.";
+                return RedirectToAction(nameof(Details), p.ID);
+            }
+
+            if(usuario != null) 
+            {
+                if(usuario.TipoUsuario == 1) 
+                {
+                    var UsuarioProjeto = _context.ProjetoEstudantes.Where(up => up.UsuarioID == usuario.ID && up.ProjetoID == p.ID).FirstOrDefault();
+
+                    if(UsuarioProjeto != null) 
+                    {
+                        TempData["Aviso"] = "Email já enviado para esse usuario.";
+                        return RedirectToAction(nameof(Details), p.ID);
+                    }
+
+                    ProjetoEstudante projetoEstudante = new ProjetoEstudante();
+                    projetoEstudante.Aprovado = false;
+                    projetoEstudante.ProjetoID = p.ID;
+                    projetoEstudante.UsuarioID = usuario.ID;
+                    projetoEstudante.Token = Guid.NewGuid().ToString();
+
+                    _context.ProjetoEstudantes.Add(projetoEstudante);
+                    await _context.SaveChangesAsync();
+
+                    ID = projetoEstudante.ID;
+                    Token = projetoEstudante.Token;
+                }
+                else 
+                {
+                    var UsuarioProjeto = _context.ProjetoCoorientadores.Where(up => up.UsuarioID == usuario.ID && up.ProjetoID == p.ID).FirstOrDefault();
+
+                    if (UsuarioProjeto != null)
+                    {
+                        TempData["Aviso"] = "Email já enviado para esse usuário.";
+                        return RedirectToAction(nameof(Details), p.ID);
+                    }
+
+                    ProjetoCoorientador projetoCoorientador = new ProjetoCoorientador();
+                    projetoCoorientador.Aprovado = false;
+                    projetoCoorientador.ProjetoID = p.ID;
+                    projetoCoorientador.UsuarioID = usuario.ID;
+                    projetoCoorientador.Token = Guid.NewGuid().ToString();
+
+                    _context.ProjetoCoorientadores.Add(projetoCoorientador);
+                    await _context.SaveChangesAsync();
+
+                    ID = projetoCoorientador.ID;
+                    Token = projetoCoorientador.Token;
+                }
+
+                EnviarEmail(usuario.Email, "Convite",
+                                            "Você foi convidado para participar do projeto " + p.Nome + ". Siga o link para aceitar o convite:",
+                                            "https://localhost:44346/Projetos/ConviteAceito?id=" + ID + "&Token=" + Token);
+
+                TempData["Aviso"] = "Enviado com sucesso.";
+            }
+            else 
+            {
+                TempData["Aviso"] = "Email não existe";
+            }
+            
+            return RedirectToAction(nameof(Details), p.ID);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ConviteAceito(int id, string token) 
+        {
+            int userID = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
+            var usuario = _context.Usuarios.Where(u => u.ID == userID).FirstOrDefault();
+
+            if (Int32.Parse(HttpContext.User.Claims.ToList()[1].Value) == 1) 
+            {
+                var UsuarioProjeto = _context.ProjetoEstudantes.Where(up => up.ID == id).FirstOrDefault();
+
+                if (UsuarioProjeto != null && UsuarioProjeto.Token == token && userID == UsuarioProjeto.UsuarioID) 
+                {
+                    UsuarioProjeto.Aprovado = true;
+
+                    usuario.ProjetoEstudantes.Add(UsuarioProjeto);
+                    _context.Update(UsuarioProjeto);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            else 
+            {
+                var UsuarioProjeto = _context.ProjetoCoorientadores.Where(up => up.ID == id).FirstOrDefault();
+
+                if (UsuarioProjeto != null && UsuarioProjeto.Token == token && userID == UsuarioProjeto.UsuarioID)
+                {
+                    UsuarioProjeto.Aprovado = true;
+
+                    usuario.projetoCoorientadores.Add(UsuarioProjeto);
+                    _context.Update(UsuarioProjeto);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            return RedirectToAction(nameof(UsuariosController.UserPage));
+        }
+
+        public void EnviarEmail(string email, string titulo, string mensagem, string link)
+        {
+            //string token = Guid.NewGuid().ToString();
+
+            MailMessage m = new MailMessage(new MailAddress("Piuser3012@hotmail.com", titulo), new MailAddress(email));
+            m.Subject = "Confirmação de Email";
+            m.Body = string.Format(@"Querido usuário,
+                                    <br/> 
+                                    {0}
+                                    <br/>
+                                    <br/> 
+                                    <a href=""{1}"" title=User Email Confirm>Link</a>",
+                                    mensagem, link);
+
+            m.IsBodyHtml = true;
+            SmtpClient smtp = new SmtpClient("smtp-mail.outlook.com", 587);
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = new NetworkCredential("Piuser3012@hotmail.com", "Opioinanimus123");
+            smtp.EnableSsl = true;
+            smtp.Send(m);
+        }
+
+
         //[OK]GET: Projetos/Create
         public IActionResult Create()
         {
@@ -173,7 +314,7 @@ namespace ControlIC.Controllers
                 {
                     idUser = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
                 }
-                catch (Exception e)
+                catch
                 {
                     ViewBag.ErroGeral = "Ocorreu um erro tente novamente";
                 }
