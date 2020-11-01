@@ -44,6 +44,7 @@ namespace ControlIC.Models
         public virtual List<ProjetoEstudante> ProjetoEstudantes { get; set; }
 
         [NotMapped]
+        [Compare("Senha", ErrorMessage = "As senhas não estão iguais.")]
         public string ConfirmarSenha { get; set; }
         [NotMapped]
         public IFormFile Perfil { get; set; }
