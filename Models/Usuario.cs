@@ -49,5 +49,7 @@ namespace ControlIC.Models
         [NotMapped]
         public IFormFile Perfil { get; set; }
 
+        [NotMapped]
+        public string ImgUrl { get; set; }
     }
 }

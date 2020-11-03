@@ -4,66 +4,151 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
+
+    tr.spaceUnder > td {
+        padding-bottom: 1em;
+    }
+
+    .label-display {
+        font-size: larger;
+        border: 2px groove;
+    }
+
+    .row {
+        display: flex;
+    }
+
+    .column {
+        float: left;
+    }
+
+    .left {
+        width: 30%;
+    }
+
+    .center {
+        width: auto
+    }
+
+    div.ex3 {
+        width:60%;
+        height: 150px;
+        overflow: auto;
+    }
+
+    .right {
+        width:auto
+    }
+</style>
 
 <div>
-    <h4>Projeto</h4>
+    <h1>
+        @Model.Nome
+        @if (int.Parse(User.Claims.ElementAt(3).Value) == Model.UsuarioID && Model.Aprovado)
+        {
+            <a asp-action="Edit" class="btn btn-primary" style="float:right" asp-route-id="@Model.ID">Edit</a>
+        }
+    </h1>
+    
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Descricao)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Descricao)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.OutrasInformacoes)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.OutrasInformacoes)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Aprovado)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Aprovado)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Usuario)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Usuario.Email)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CampoPesquisa)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CampoPesquisa.ID)
-        </dd>
-    </dl>
+    <fieldset style="align-items:center">
+        <div>
+            <div class="column left">
+                <img src="@ViewBag.ImageData" style="background-color: black; border: 5px solid #000; border-color: black; width: 250px; height: 250px; border-radius: 200px" />
+                <br />
+                <br />
+            </div>
 
-    @if (int.Parse(User.Claims.ElementAt(3).Value) == Model.UsuarioID)
-    {
-        <form asp-action="Details">
-            <input type="hidden" asp-for="Aprovado"/>
-            <label>Convidar Usuario:</label>
-            <input type="email" class="form-control" asp-for="EmailConvite" />
             <br />
-            <button type="submit" class="btn-primary">Enviar</button>
-        </form>
-    }
+
+            <table class="column center" style="border-collapse: separate; border-spacing: 20px;">
+                <tr>
+                    <th style="font-size:large">Campo de Pesquisa:</th>
+                    <td><div style="width:auto ;max-width:150px; overflow:auto">@Html.DisplayFor(model => model.CampoPesquisa.Nome)</div></td>
+                    <th>|</th>
+                    <th style="font-size:large">Status:</th>
+                    @if (Model.Status)
+                    {
+                        <td style="color:green">
+                            Ativo
+                        </td>
+                    }
+                    else
+                    {
+                        <td style="color:red">
+                            Encerrado
+                        </td>
+                    }
+                    <th>|</th>
+                </tr>
+            </table>
+        </div>
+        <div class="ex3" style="display:inline-block; margin-left:20px">
+            <p style="font-weight:bold; font-size:larger;">Professor:</p>
+            <hr />
+            <img src="@Model.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
+            <p style="padding-right:10px; white-space:nowrap ;text-overflow: clip;  padding-left:10px; white-space:nowrap ;display:inline-block">@Model.Usuario.Nome</p>
+            <hr />
+            @if (Model.projetoCoorientadores != null && Model.projetoCoorientadores.Count() > 0)
+            {
+                <p style="font-weight:bold; font-size:larger;">Coorientadores:</p>
+                <hr />
+                foreach (var i in Model.projetoCoorientadores)
+                {
+                    <div>
+                        <img src="@i.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
+                        <p style="padding-right:10px; white-space:nowrap ;padding-left:10px ;text-overflow: clip; display:inline-block">@i.Usuario.Nome</p>
+                    </div>
+                    <hr />
+                }
+            }
+            @if (Model.ProjetoEstudantes != null && Model.ProjetoEstudantes.Count() > 0)
+            {
+                <p style="font-weight:bold; font-size:larger;">Estudantes:</p>
+                <hr />
+                foreach (var i in Model.ProjetoEstudantes)
+                {
+                    <div>
+                        <img src="@i.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
+                        <p style="padding-right:10px; white-space:nowrap ;padding-left:10px ;text-overflow: clip; display:inline-block">@i.Usuario.Nome</p>
+                    </div>
+                    <hr />
+                }
+            }
+
+            @if (int.Parse(User.Claims.ElementAt(3).Value) == Model.UsuarioID && Model.Aprovado)
+            {
+                <form asp-action="Details">
+                    <input type="hidden" asp-for="Aprovado" />
+                    <label>Convidar Usuario:</label>
+                    <input type="email" class="form-control" style="width:50%; display:inline-block" asp-for="EmailConvite" />
+                    <button type="submit" style="display:inline-block" class="btn btn-primary">Enviar</button>
+                </form>
+            }
+        </div>
+    </fieldset>
+
+
+
+    <br />
+    <br />
+    <table style="width:100%">
+        <tr>
+            <td class="label-display" style="text-align:justify; padding:10px;" colspan="2">@Html.DisplayFor(model => model.Descricao)</td>
+        </tr>
+    </table>
+
+    <br />
+    <br />
+
+
 
     @if (TempData["Aviso"] != null)
     {

@@ -108,10 +108,67 @@ namespace ControlIC.Controllers
             var projeto = await _context.Projetos
                 .Include(p => p.CampoPesquisa)
                 .Include(p => p.Usuario)
+                .Include(p => p.ProjetoEstudantes)
+                .ThenInclude(p => p.Usuario)
+                .Include(p => p.projetoCoorientadores)
+                .ThenInclude(p => p.Usuario)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (projeto == null)
             {
                 return NotFound();
+            }
+
+            if (projeto.ImgProjeto == null)
+            {
+                ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+            }
+            else
+            {
+                string imreBase64Data = Convert.ToBase64String(projeto.ImgProjeto);
+                string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                //Passing image data in viewbag to view  
+                ViewBag.ImageData = imgDataURL;
+            }
+
+            if (projeto.Usuario.ImgUsuario == null)
+            {
+                ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+            }
+            else
+            {
+                string imreBase64Data = Convert.ToBase64String(projeto.Usuario.ImgUsuario);
+                string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                //Passing image data in viewbag to view  
+                projeto.Usuario.ImgUrl = imgDataURL;
+            }
+
+            foreach (var a in projeto.ProjetoEstudantes) 
+            {
+                if (a.Usuario.ImgUsuario == null)
+                {
+                    ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+                }
+                else
+                {
+                    string imreBase64Data = Convert.ToBase64String(a.Usuario.ImgUsuario);
+                    string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                    //Passing image data in viewbag to view  
+                    a.Usuario.ImgUrl = imgDataURL;
+                }
+            }
+            foreach (var a in projeto.projetoCoorientadores)
+            {
+                if (a.Usuario.ImgUsuario == null)
+                {
+                    ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+                }
+                else
+                {
+                    string imreBase64Data = Convert.ToBase64String(a.Usuario.ImgUsuario);
+                    string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                    //Passing image data in viewbag to view  
+                    a.Usuario.ImgUrl = imgDataURL;
+                }
             }
 
             return View(projeto);
@@ -148,6 +205,7 @@ namespace ControlIC.Controllers
                     projetoEstudante.Aprovado = false;
                     projetoEstudante.ProjetoID = p.ID;
                     projetoEstudante.UsuarioID = usuario.ID;
+                    projetoEstudante.Usuario = usuario;
                     projetoEstudante.Token = Guid.NewGuid().ToString();
 
                     _context.ProjetoEstudantes.Add(projetoEstudante);
@@ -170,6 +228,7 @@ namespace ControlIC.Controllers
                     projetoCoorientador.Aprovado = false;
                     projetoCoorientador.ProjetoID = p.ID;
                     projetoCoorientador.UsuarioID = usuario.ID;
+                    projetoCoorientador.Usuario = usuario;
                     projetoCoorientador.Token = Guid.NewGuid().ToString();
 
                     _context.ProjetoCoorientadores.Add(projetoCoorientador);
