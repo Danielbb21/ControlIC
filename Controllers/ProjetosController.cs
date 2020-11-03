@@ -237,22 +237,29 @@ namespace ControlIC.Controllers
         {
             //string token = Guid.NewGuid().ToString();
 
-            MailMessage m = new MailMessage(new MailAddress("Piuser3012@hotmail.com", titulo), new MailAddress(email));
-            m.Subject = "Confirmação de Email";
-            m.Body = string.Format(@"Querido usuário,
+            try 
+            {
+                MailMessage m = new MailMessage(new MailAddress("controlICsenai@hotmail.com", titulo), new MailAddress(email));
+                m.Subject = "Confirmação de Email";
+                m.Body = string.Format(@"Querido usuário,
                                     <br/> 
                                     {0}
                                     <br/>
                                     <br/> 
                                     <a href=""{1}"" title=User Email Confirm>Link</a>",
-                                    mensagem, link);
+                                        mensagem, link);
 
-            m.IsBodyHtml = true;
-            SmtpClient smtp = new SmtpClient("smtp-mail.outlook.com", 587);
-            smtp.UseDefaultCredentials = false;
-            smtp.Credentials = new NetworkCredential("Piuser3012@hotmail.com", "Opioinanimus123");
-            smtp.EnableSsl = true;
-            smtp.Send(m);
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient("smtp-mail.outlook.com", 587);
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential("controlICsenai@hotmail.com", "controlic4");
+                smtp.EnableSsl = true;
+                smtp.Send(m);
+            }
+            catch 
+            {
+                TempData["Aviso"] = "Erro aconteceu.";
+            }
         }
 
 
