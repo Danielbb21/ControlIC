@@ -4,63 +4,140 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<style>
+    span {
+        color: red;
+        float: left;
+        margin-top: 1%;
+        margin-left: 1%;
+    }
 
-<h4>Projeto</h4>
-<hr/>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
-            <input type="hidden" asp-for="ImgProjeto"/>
-            <div class="form-group">
-                <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" />
-                <span asp-validation-for="Nome" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descricao" class="control-label"></label>
-                <input asp-for="Descricao" class="form-control" />
-                <span asp-validation-for="Descricao" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OutrasInformacoes" class="control-label"></label>
-                <input asp-for="OutrasInformacoes" class="form-control" />
-                <span asp-validation-for="OutrasInformacoes" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+    .input-noborder {
+        border: 0;
+        outline-width: 0;
+    }
+
+    tr.spaceUnder > td {
+        padding-bottom: 1em;
+    }
+
+    .label-display {
+        font-size: larger;
+        margin: 20px;
+        border: 3px solid #000;
+    }
+
+    .row {
+        display: flex;
+    }
+
+    .column {
+        float: left;
+    }
+
+    .left {
+        width: 30%;
+    }
+
+    .right {
+        width: 25%;
+    }
+
+    .center {
+        width: 70%;
+    }
+</style>
+
+<h1>Edição de Projeto</h1>
+<hr />
+<br />
+<br />
+@Html.ValidationSummary(true)
+
+<form asp-action="Edit" enctype="multipart/form-data" method="post">
+    <fieldset style="align-items:center">
+
+        <input type="hidden" asp-for="ID" />
+        <input type="hidden" asp-for="UsuarioID" />
+        <input type="hidden" asp-for="Status" />
+        <input type="hidden" asp-for="Aprovado" />
+        <input type="hidden" asp-for="ImgProjeto" />
+        <input type="hidden" asp-for="CampoPesquisa" />
+
+        <div class="row">
+            <div class="column left">
+                <label for="file-input">
+                    <img src="@ViewBag.ImageData" id="output" style="background-color: black; border: 5px solid #000; border-color: black; width: 300px; height: 300px; border-radius: 200px" />
                 </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Aprovado" /> @Html.DisplayNameFor(model => model.Aprovado)
-                </label>
+                <input id="file-input" style="display:none" accept="image/*" onchange="loadFile(event)" type="file" asp-for="ImgProjetoFormato" />
+                <span asp-validation-for="ImgProjetoFormato" class="text-danger"></span>
+                <br />
+                <br />
+                <div style="width:300px; text-align:center">
+                    <input type="submit" value="Atualizar" class="btn btn-primary" />
+                </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="CampoPesquisaID" class="control-label"></label>
-                <select asp-for="CampoPesquisaID" class="form-control" asp-items="ViewBag.CampoPesquisaID"></select>
-                <span asp-validation-for="CampoPesquisaID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioID" class="control-label"></label>
-                <select asp-for="UsuarioID" class="form-control" asp-items="ViewBag.UsuarioID"></select>
-                <span asp-validation-for="UsuarioID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+            <br />
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+            <table class="column center" style="border-collapse: separate; border-spacing: 35px;">
+                <tr>
+                    <th style="font-size:large">Nome:</th>
+                    <td class="label-display" colspan="2">
+                        <input style="width:100%" class="input-noborder" asp-for="Nome" />
+                        <span asp-validation-for="Nome" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">Descrição:</th>
+                    <td class="label-display" colspan="2">
+                        <input style="width:100%" class="input-noborder" asp-for="Descricao" />
+                        <span asp-validation-for="Descricao" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">Informações Adicionais:</th>
+                    <td class="label-display" colspan="2">
+                        <input style="width:100%" class="input-noborder" asp-for="OutrasInformacoes" />
+                        <span asp-validation-for="Descricao" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="font-size:large">Campo de Pesquisa:</th>
+                    <td class="label-display" colspan="2">
+                        <input style="width:100%; display:none" id="CampoInput" class="input-noborder" asp-for="CampoPesquisa.Nome" />
+                        <select asp-for="CampoPesquisaID" id="CampoSelect" style="display:table-cell; width:100%;" asp-items="ViewBag.CampoPesquisaID"></select>
+                        <span asp-validation-for="CampoPesquisaID" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <div>
+                            <label onclick="document.getElementById('CampoInput').value = '' ;HideStuff(event)" style="font-size:xx-large;height:100%; width:100%; display:inline-flex; align-items:center; font-weight:bold">+</label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </fieldset>
+</form>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<script>
+    var loadFile = function (event) {
+        var image = document.getElementById('output');
+        image.src = URL.createObjectURL(event.target.files[0]);
+    };
+
+    var HideStuff = function (event) {
+        var CampoSelect = document.getElementById("CampoSelect");
+        var CampoInput = document.getElementById("CampoInput");
+        if (CampoInput.style.display === "none") {
+            CampoInput.style.display = "table-cell";
+            CampoSelect.style.display = "none";
+        } else {
+            CampoInput.style.display = "none";
+            CampoInput.nodeValue = null;
+            CampoSelect.style.display = "table-cell";
+        }
+    };
+</script>
+
+

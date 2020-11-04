@@ -416,6 +416,23 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
+
+            if(int.Parse(User.Claims.ElementAt(3).Value) != projeto.UsuarioID) 
+            {
+                return NotFound();
+            }
+
+            if (projeto.ImgProjeto == null)
+            {
+                ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+            }
+            else
+            {
+                string imreBase64Data = Convert.ToBase64String(projeto.ImgProjeto);
+                string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                ViewBag.ImageData = imgDataURL;
+            }
+
             ViewData["CampoPesquisaID"] = new SelectList(_context.CampoPesquisas, "ID", "Nome", projeto.CampoPesquisaID);
             TempData["ProjetoUsuarioID"] = projeto.UsuarioID;
             ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "ID", "Email", projeto.UsuarioID);
@@ -453,6 +470,35 @@ namespace ControlIC.Controllers
 
             if (ModelState.IsValid)
             {
+                if (projeto.CampoPesquisa.Nome != null)
+                {
+                    var cp = _context.CampoPesquisas.Where(cp => cp.Nome == projeto.CampoPesquisa.Nome).FirstOrDefault();
+
+                    if(cp == null) 
+                    {
+                        _context.CampoPesquisas.Add(projeto.CampoPesquisa);
+                        await _context.SaveChangesAsync();
+                        projeto.CampoPesquisaID = projeto.CampoPesquisa.ID;
+                    }
+                    else 
+                    {
+                        return View(projeto.ID);
+                    }
+                }
+                else 
+                {
+                    projeto.CampoPesquisa = _context.CampoPesquisas.Where(cp => cp.ID == projeto.CampoPesquisaID).FirstOrDefault();
+                }
+
+                IFormFile imagemEnviada = projeto.ImgProjetoFormato;
+                if (imagemEnviada != null)
+                {
+                    MemoryStream ms = new MemoryStream();
+                    await imagemEnviada.OpenReadStream().CopyToAsync(ms);
+                    projeto.ImgProjeto = ms.ToArray();
+                }
+
+
                 try
                 {
                     _context.Update(projeto);
