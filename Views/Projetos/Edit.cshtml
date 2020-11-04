@@ -59,7 +59,6 @@
 
         <input type="hidden" asp-for="ID" />
         <input type="hidden" asp-for="UsuarioID" />
-        <input type="hidden" asp-for="Status" />
         <input type="hidden" asp-for="Aprovado" />
         <input type="hidden" asp-for="ImgProjeto" />
         <input type="hidden" asp-for="CampoPesquisa" />
@@ -115,6 +114,25 @@
                         </div>
                     </td>
                 </tr>
+                <tr>
+                    <th style="font-size:large">Status:</th>
+                    <td colspan="2">
+                        <div>
+                            <input type="checkbox" id="CheckStatus" class="form-check-input" onchange="ChangeColor(event)" asp-for="Status" />
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                            @if (Model.Status)
+                            {
+                                <b id="TextStatus" style="margin-left:10px ; color:green;display:inline-block">Ativo</b>
+                            }
+                            else
+                            {
+                                <b id="TextStatus" style="margin-left: 10px; color:red;display:inline-block">Encerrado</b>
+                            }
+                        </div>
+                    </td>
+
+                    
+                </tr>
             </table>
         </div>
     </fieldset>
@@ -129,13 +147,28 @@
     var HideStuff = function (event) {
         var CampoSelect = document.getElementById("CampoSelect");
         var CampoInput = document.getElementById("CampoInput");
-        if (CampoInput.style.display === "none") {
+        if (CampoInput.style.display == "none") {
             CampoInput.style.display = "table-cell";
             CampoSelect.style.display = "none";
         } else {
             CampoInput.style.display = "none";
             CampoInput.nodeValue = null;
             CampoSelect.style.display = "table-cell";
+        }
+    };
+
+    var ChangeColor = function (event) {
+        var TextStatus = document.getElementById("TextStatus");
+        var CheckStatus = document.getElementById("CheckStatus");
+
+        if (CheckStatus.checked == false) {
+            TextStatus.style.color = "red";
+            TextStatus.innerText = "Encerrado";
+        }
+        else
+        {
+            TextStatus.style.color = "green";
+            TextStatus.innerText = "Ativo";
         }
     };
 </script>

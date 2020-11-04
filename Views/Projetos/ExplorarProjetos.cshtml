@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ControlIC.Models.Projeto>
 
 @{
-    ViewData["Title"] = "Meus Projetos ";
+    ViewData["Title"] = "Explorar Projetos ";
 }
 
 
@@ -18,24 +18,16 @@
         white-space: nowrap;
         max-width: 150px;
     }
-
 </style>
 
-<h1>@ViewData["Title"] [@ViewBag.QtdProjetos]</h1>
+<h1>@ViewData["Title"]</h1>
 
-@{ 
-    if(ViewBag.TipoUsuario == 2)
-    {
-        <p><a asp-action="Create">Criar Projeto</a></p>
-    }
-}
-
-<form asp-controller="Projetos" asp-action="Index" method="get">
+<form asp-controller="Projetos" asp-action="ExplorarProjetos" method="get">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
                 <label class="control-label">Pesquisar</label>
-                <input type="text" class="form-control" name="nomeProjeto">
+                <input type="text" class="form-control" name="Nome">
             </div>
         </div>
         <div class="col-md-1">
@@ -89,7 +81,7 @@
                     <td class="text-center align-middle">@item.Nome</td>
 
                     <td class="text-center align-middle">@item.Descricao</td>
-                    
+
                     <td class="text-center align-middle">@Html.DisplayFor(modelItem => item.CampoPesquisa.Nome)</td>
 
                     @{
@@ -112,17 +104,17 @@
                         }
                     }
 
-                <td class="align-middle">
-                    <a asp-action="ConsultarProjeto" class="btn-dark btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ver</a>
-                    @{
-                        //Se a pessoa for orientadora do projeto vai ter essas opções
-                        if (item.UsuarioID == ViewBag.IdUsuario)
-                        {
-                            <a asp-action="Edit" class="btn-info btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Editar</a>
-                            <a asp-action="Delete" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Excluir</a>
+                    <td class="align-middle">
+                        <a asp-action="Details" class="btn-dark btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ver</a>
+                        @{
+                            //Se a pessoa for orientadora do projeto vai ter essas opções
+                            if (item.UsuarioID == ViewBag.IdUsuario)
+                            {
+                                <a asp-action="Edit" class="btn-info btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Editar</a>
+                                <a asp-action="Delete" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Excluir</a>
+                            }
                         }
-                    }
-                </td>
+                    </td>
                 </tr>
             }
         }
@@ -137,4 +129,4 @@
     </tbody>
 </table>
 
-            
+

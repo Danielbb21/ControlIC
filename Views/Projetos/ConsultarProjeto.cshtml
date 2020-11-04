@@ -1,0 +1,29 @@
+﻿@model ControlIC.Models.Projeto
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1><a style="color:black" asp-action="Details" asp-controller="Projetos" asp-route-id="@Model.ID">@Model.Nome</a></h1>
+
+<a class="btn btn-primary" asp-action="Create" asp-route-id="@Model.ID" asp-controller="Postagems">Criar Postagem</a>
+
+    <div class="container">
+        <hr />
+        @foreach (var p in Model.Postagens)
+        {
+            <div style="background-color:lightgray; border:groove; padding:10px">
+                <h6>
+                    @p.Usuario.Nome   -
+                    @if (p.UsuarioID == int.Parse(User.Claims.ElementAt(3).Value))
+                    {
+                        <a asp-action="Edit" asp-route-id="@p.ID" asp-controller="Postagems">Editar</a>
+                    }
+                </h6>
+                <label>@p.Texto</label>
+                <label style="float:right">@p.DataPostagem.Date.Day/@p.DataPostagem.Date.Month/@p.DataPostagem.Date.Year</label>
+            </div>
+
+            <hr />
+        }
+    </div>

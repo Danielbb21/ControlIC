@@ -92,9 +92,26 @@ namespace ControlIC.Controllers
                     return View(projetosBusca.ToList());
                 }
             }
+
             //Pesquisa todos os projetos do orientador
             ViewBag.QtdProjetos = MeusProjetos.Count();
             return View(MeusProjetos);
+        }
+
+        public IActionResult ExplorarProjetos(string Nome) 
+        {
+            var listProjetos = _context.Projetos.Include(p => p.CampoPesquisa).ToList();
+
+            if (!String.IsNullOrEmpty(Nome))
+            {
+                if (listProjetos.Count > 0)
+                {
+                    var projetosBusca = listProjetos.Where(p => p.Nome.ToUpper().Contains(Nome.ToUpper()));
+                    return View(projetosBusca.ToList());
+                }
+            }
+
+            return View(listProjetos);
         }
 
         // GET: Projetos/Details/5
@@ -321,6 +338,41 @@ namespace ControlIC.Controllers
             }
         }
 
+        public async Task<IActionResult> ConsultarProjeto(int? id) 
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var projeto = await _context.Projetos
+                .Include(p => p.Postagens)
+                .ThenInclude(p => p.Usuario)
+                .Include(p => p.ProjetoEstudantes)
+                .Include(p => p.projetoCoorientadores)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            int userId = int.Parse(User.Claims.ElementAt(3).Value);
+
+            if (projeto.UsuarioID != userId)
+            {
+                if (int.Parse(User.Claims.ElementAt(1).Value) == 1)
+                {
+                    var usuario = projeto.ProjetoEstudantes.Where(u => u.ID == userId).FirstOrDefault();
+                    if (usuario == null) return NotFound();
+                }
+                else if (int.Parse(User.Claims.ElementAt(1).Value) == 2)
+                {
+                    var usuario = projeto.projetoCoorientadores.Where(u => u.ID == userId).FirstOrDefault();
+                    if (usuario == null) return NotFound();
+                }
+            }
+
+            projeto.Postagens = projeto.Postagens.OrderByDescending(p => p.DataPostagem.TimeOfDay).ToList();
+
+            return View(projeto);
+        }
+
 
         //[OK]GET: Projetos/Create
         public IActionResult Create()
@@ -337,6 +389,7 @@ namespace ControlIC.Controllers
             ViewBag.ErroGeral = null;
             int idUser = 0;
 
+
             if (projeto == null)
             {
                 ViewBag.ErroGeral = "Ocorreu um erro tente novamente";
@@ -350,6 +403,26 @@ namespace ControlIC.Controllers
                 if (projeto.OutrasInformacoes == null || projeto.OutrasInformacoes.Trim().Length <= 0) ModelState.AddModelError("OutrasInformacoes", "Preencha este campo");
 
                 if (projeto.CampoPesquisaID <= 0) ModelState.AddModelError("CampoPesquisaID", "Selecione uma opção");
+
+                if (projeto.CampoPesquisa.Nome != null)
+                {
+                    var cp = _context.CampoPesquisas.Where(cp => cp.Nome == projeto.CampoPesquisa.Nome).FirstOrDefault();
+
+                    if (cp == null)
+                    {
+                        _context.CampoPesquisas.Add(projeto.CampoPesquisa);
+                        await _context.SaveChangesAsync();
+                        projeto.CampoPesquisaID = projeto.CampoPesquisa.ID;
+                    }
+                    else
+                    {
+                        return View(projeto.ID);
+                    }
+                }
+                else
+                {
+                    projeto.CampoPesquisa = _context.CampoPesquisas.Where(cp => cp.ID == projeto.CampoPesquisaID).FirstOrDefault();
+                }
 
                 if (projeto.ImgProjetoFormato == null) 
                 { 
@@ -392,6 +465,8 @@ namespace ControlIC.Controllers
                 projeto.UsuarioID = idUser;
                 projeto.Status = true;
                 projeto.Aprovado = false;
+
+
 
                 _context.Add(projeto);
                 await _context.SaveChangesAsync();

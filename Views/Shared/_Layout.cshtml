@@ -44,9 +44,13 @@
         </nav>
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" style="height:25px; background-color:#222A35">
-            <div class="container">
-                <a asp-action="Index" asp-controller="Projetos" style="color:white">Meus Projetos</a>
-            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="container">
+                    <a asp-action="ExplorarProjetos" asp-controller="Projetos" style="color:white;">Explorar Projetos</a>
+                    <a asp-action="Index" asp-controller="Projetos" style="color:white">Meus Projetos</a>
+                </div>
+            }
         </nav>
     
     </header>

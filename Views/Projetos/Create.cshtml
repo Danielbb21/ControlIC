@@ -32,19 +32,24 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="CampoPesquisaID" class="control-label">Campo de pesquisa</label>
+                <input style="width:60%; display:none" id="CampoInput" class="form-control" asp-for="CampoPesquisa.Nome" />
+                <select class="form-control" asp-for="CampoPesquisaID" id="CampoSelect" style="display:table-cell; width:60%;" asp-items="ViewBag.CampoPesquisaID"></select>
+                <span asp-validation-for="CampoPesquisaID" class="text-danger"></span>
+                <label onclick="document.getElementById('CampoInput').value = '' ;HideStuff(event)" style="font-size:xx-large; display:inline-flex; align-items:center; font-weight:bold">+</label>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="ImgProjetoFormato" class="control-label"> Imagem</label>
-                <input type="file" asp-for="ImgProjetoFormato"/>
+                <input type="file" asp-for="ImgProjetoFormato" />
                 <span asp-validation-for="ImgProjetoFormato" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="CampoPesquisaID" class="control-label">Campo de pesquisa</label>
-                <select asp-for="CampoPesquisaID" class="form-control" asp-items="ViewBag.CampoPesquisaID"></select>
-            </div>
+
 
             <div class="form-group">
                 <input type="submit" value="Cadastrar" class="btn btn-primary" />
             </div>
-             
+
         </form>
     </div>
 </div>
@@ -56,3 +61,18 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    var HideStuff = function (event) {
+        var CampoSelect = document.getElementById("CampoSelect");
+        var CampoInput = document.getElementById("CampoInput");
+        if (CampoInput.style.display == "none") {
+            CampoInput.style.display = "table-cell";
+            CampoSelect.style.display = "none";
+        } else {
+            CampoInput.style.display = "none";
+            CampoInput.nodeValue = null;
+            CampoSelect.style.display = "table-cell";
+        }
+    };
+</script>
