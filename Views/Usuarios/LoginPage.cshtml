@@ -17,44 +17,45 @@
 <center>
     <h1>Login</h1>
     <br>
+    @if (ViewBag.Erro != null)
+    {
+        <h5 style="padding: 5px; color: red; ">
+            @ViewBag.Erro
+        </h5>
+    }
     <br>
     @using (Html.BeginForm())
     {
         @Html.ValidationSummary(true)
 
-<fieldset style="width: 40%;">
-    <br />
-    <input type="text" class="form-control" name="Email" placeholder="Digite seu email..." />
-    @Html.ValidationMessageFor(model => model.Email)
-    <br />
-    <br />
-    <br />
-    <input type="password" class="form-control" name="Senha" placeholder="Digite sua senha..." />
-    @Html.ValidationMessageFor(model => model.Senha)
-    <br />
-    <br />
-    <br />
-    <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;"> Logar</button>
-    <br />
-    <label>Não é cadastrado ainda? </label>
-    <br />
-    <a class="btn btn-primary" asp-area="" asp-controller="Usuarios" asp-action="EscolhaTipo" style="background-color: mediumseagreen; border: none;">
-        Cadastre-se aqui
-    </a>
-    <br />
-    <br />
-    <a class="btn btn-primary" asp-area="" asp-controller="Usuarios" asp-action="IniciarRecuperarSenha">
-        Esqueceu a senha?
-    </a>
+        <fieldset style="width: 40%;">
+            <br />
+            <input type="text" class="form-control" name="Email" placeholder="Digite seu email..." />
+            @Html.ValidationMessageFor(model => model.Email)
+            <br />
+            <br />
+            <br />
+            <input type="password" class="form-control" name="Senha" placeholder="Digite sua senha..." />
+            @Html.ValidationMessageFor(model => model.Senha)
+            <br />
+            <br />
+            <br />
+            <button type="submit" class="btn btn-primary" style="background-color: mediumseagreen; border: none;"> Logar</button>
+            <br />
+            <label>Não é cadastrado ainda? </label>
+            <br />
+            <a class="btn btn-primary" asp-area="" asp-controller="Usuarios" asp-action="EscolhaTipo" style="background-color: mediumseagreen; border: none;">
+                Cadastre-se aqui
+            </a>
+            <br />
+            <br />
+            <a class="btn btn-primary" asp-area="" asp-controller="Usuarios" asp-action="IniciarRecuperarSenha">
+                Esqueceu a senha?
+            </a>
 
-    <br /><br />
+            <br /><br />
 
-    @if (ViewBag.Erro != null)
-    {
-        <h3 style="padding: 20px; color: white; background-color: dimgray">
-            @ViewBag.Erro
-        </h3>
-    }
-</fieldset>
+
+        </fieldset>
     }
 </center>
