@@ -25,9 +25,6 @@
                 @Html.DisplayNameFor(model => model.Restricao)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Cor)
             </th>
             <th>
@@ -52,13 +49,10 @@
                 @Html.DisplayFor(modelItem => item.Restricao)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Status)
+                <label style="background-color: rgb(@item.Cor); border:solid #262626 1px; padding: 12px; border-radius: 200px;" />
             </td>
             <td>
-                <label style="background-color: rgb(@item.Cor); border:solid #262626 1px; padding: 12px; border-radius: 200px;"/>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Projeto.Nome)
+                @Html.DisplayFor(modelItem => item.Projeto.ID)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |

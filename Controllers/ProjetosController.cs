@@ -149,7 +149,7 @@ namespace ControlIC.Controllers
 
             if (projeto.Usuario.ImgUsuario == null)
             {
-                ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+                projeto.Usuario.ImgUrl = "/Imagens/Placeholder_Perfil.png";
             }
             else
             {
@@ -358,7 +358,7 @@ namespace ControlIC.Controllers
             {
                 if (int.Parse(User.Claims.ElementAt(1).Value) == 1)
                 {
-                    var usuario = projeto.ProjetoEstudantes.Where(u => u.ID == userId).FirstOrDefault();
+                    var usuario = projeto.ProjetoEstudantes.Where(u => u.UsuarioID == userId).FirstOrDefault();
                     if (usuario == null) return NotFound();
                 }
                 else if (int.Parse(User.Claims.ElementAt(1).Value) == 2)

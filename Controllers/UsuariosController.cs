@@ -322,7 +322,8 @@ namespace ControlIC.Controllers {
             /// </summary>
             public IActionResult Profile(String id)
             {
-                if (TempData["token"] != null || id != TempData["token"] as string)
+                //para praticidade dos testes mude o && para ||
+                if (TempData["token"] != null && id != TempData["token"] as string)
                 {
                     return View();
                 }

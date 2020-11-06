@@ -61,12 +61,12 @@ namespace ControlIC.Views
             {
                 if (int.Parse(User.Claims.ElementAt(1).Value) == 1)
                 {
-                    var usuario = projeto.ProjetoEstudantes.Where(u => u.ID == userId).FirstOrDefault();
+                    var usuario = projeto.ProjetoEstudantes.Where(u => u.UsuarioID == userId).FirstOrDefault();
                     if (usuario == null) return NotFound();
                 }
                 else if (int.Parse(User.Claims.ElementAt(1).Value) == 2)
                 {
-                    var usuario = projeto.projetoCoorientadores.Where(u => u.ID == userId).FirstOrDefault();
+                    var usuario = projeto.projetoCoorientadores.Where(u => u.UsuarioID == userId).FirstOrDefault();
                     if (usuario == null) return NotFound();
                 }
             }

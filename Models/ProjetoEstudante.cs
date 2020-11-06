@@ -16,6 +16,6 @@ namespace ControlIC.Models
         public int UsuarioID { get; set; }
         public virtual Usuario Usuario { get; set; }
 
-        public string? Token { get; set; }
+        public string Token { get; set; }
     }
 }

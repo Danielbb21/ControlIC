@@ -35,9 +35,9 @@ namespace ControlIC.Controllers
             }
 
             var atividade = await _context.Atividades
-                .Include(a => a.Projeto)
-                .Include(a => a.Participantes)
-                .FirstOrDefaultAsync(m => m.ID == id);
+               .Include(a => a.Projeto)
+               .Include(a => a.Participantes)
+               .FirstOrDefaultAsync(m => m.ID == id);
             if (atividade == null)
             {
                 return NotFound();
@@ -45,10 +45,9 @@ namespace ControlIC.Controllers
             var atvResp = _context.AtividadeResponsaveis.Where(AtividadeResponsavel => AtividadeResponsavel.AtividadeID == atividade.ID);
             foreach (var item in atvResp)
             {
-                var Responsavel = _context.Usuarios.Find(item.ID);
+                var Responsavel = _context.Usuarios.Find(item.UsuarioID);
                 atividade.Participantes.Add(Responsavel);
             }
-
 
             return View(atividade);
         }
@@ -56,7 +55,7 @@ namespace ControlIC.Controllers
         // GET: Atividades/Create
         public IActionResult Create()
         {
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "ID");
+            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome");
             return View();
         }
 
@@ -73,7 +72,7 @@ namespace ControlIC.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "ID", atividade.ProjetoID);
+            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome", atividade.ProjetoID);
             return View(atividade);
         }
 
@@ -90,7 +89,7 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "ID", atividade.ProjetoID);
+            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome", atividade.ProjetoID);
             return View(atividade);
         }
 
@@ -126,7 +125,7 @@ namespace ControlIC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "ID", atividade.ProjetoID);
+            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome", atividade.ProjetoID);
             return View(atividade);
         }
 

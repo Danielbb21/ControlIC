@@ -12,8 +12,9 @@ namespace ControlIC.Models
         public string Titulo { get; set; }
         public string Texto { get; set; }
         public DateTime DataPrevista { get; set; }
+        //Se Documentos enviados serão publicos ou privados
         public bool Restricao { get; set; }
-        public bool Status { get; set; }
+
         [Column(TypeName = "varchar(13)")]
         public string Cor { get; set; }
         public int ProjetoID { get; set; }
