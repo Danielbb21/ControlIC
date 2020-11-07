@@ -10,8 +10,8 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace ControlIC.Migrations
 {
     [DbContext(typeof(ControlICContext))]
-    [Migration("20201019012227_initialize")]
-    partial class initialize
+    [Migration("20201107125546_inicio")]
+    partial class inicio
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,9 @@ namespace ControlIC.Migrations
                         .HasColumnType("NUMBER(10)")
                         .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Cor")
+                        .HasColumnType("varchar(13)");
+
                     b.Property<DateTime>("DataPrevista")
                         .HasColumnType("TIMESTAMP(7)");
 
@@ -35,9 +38,6 @@ namespace ControlIC.Migrations
                         .HasColumnType("NUMBER(10)");
 
                     b.Property<bool>("Restricao")
-                        .HasColumnType("NUMBER(1)");
-
-                    b.Property<bool>("Status")
                         .HasColumnType("NUMBER(1)");
 
                     b.Property<string>("Texto")
@@ -66,8 +66,11 @@ namespace ControlIC.Migrations
                     b.Property<int>("AtividadeID")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<DateTime>("DataEntrega")
+                    b.Property<DateTime?>("DataEntrega")
                         .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<bool>("Entregue")
+                        .HasColumnType("NUMBER(1)");
 
                     b.Property<int>("UsuarioID")
                         .HasColumnType("NUMBER(10)");
@@ -192,6 +195,9 @@ namespace ControlIC.Migrations
                     b.Property<int>("ProjetoID")
                         .HasColumnType("NUMBER(10)");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("NVARCHAR2(2000)");
+
                     b.Property<int>("UsuarioID")
                         .HasColumnType("NUMBER(10)");
 
@@ -216,6 +222,9 @@ namespace ControlIC.Migrations
 
                     b.Property<int>("ProjetoID")
                         .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("UsuarioID")
                         .HasColumnType("NUMBER(10)");
@@ -294,6 +303,9 @@ namespace ControlIC.Migrations
                     b.Property<int?>("AnoIngresso")
                         .HasColumnType("NUMBER(10)");
 
+                    b.Property<int?>("AtividadeID")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<int?>("CursoID")
                         .HasColumnType("NUMBER(10)");
 
@@ -330,6 +342,8 @@ namespace ControlIC.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("AtividadeID");
+
                     b.HasIndex("CursoID");
 
                     b.HasIndex("TitulacaoID");
@@ -364,7 +378,7 @@ namespace ControlIC.Migrations
             modelBuilder.Entity("ControlIC.Models.Postagem", b =>
                 {
                     b.HasOne("ControlIC.Models.Projeto", "Projeto")
-                        .WithMany()
+                        .WithMany("Postagens")
                         .HasForeignKey("ProjetoID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -432,6 +446,10 @@ namespace ControlIC.Migrations
 
             modelBuilder.Entity("ControlIC.Models.Usuario", b =>
                 {
+                    b.HasOne("ControlIC.Models.Atividade", null)
+                        .WithMany("Participantes")
+                        .HasForeignKey("AtividadeID");
+
                     b.HasOne("ControlIC.Models.Curso", "Curso")
                         .WithMany("Usuarios")
                         .HasForeignKey("CursoID");

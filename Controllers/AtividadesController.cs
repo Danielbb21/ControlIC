@@ -19,9 +19,21 @@ namespace ControlIC.Controllers
             _context = context;
         }
 
+        public class AtividadeResponsavelModel
+        {
+            public bool Selecionado { get; set; }
+            public Usuario Usuario { get; set; }
+        }
+
+        public class AtividadeModel{
+            public Atividade Atividade { get; set; }
+            public List<AtividadeResponsavelModel> Responsaveis { get; set; }
+        }
+
         // GET: Atividades
         public async Task<IActionResult> Index()
         {
+
             var controlICContext = _context.Atividades.Include(a => a.Projeto);
             return View(await controlICContext.ToListAsync());
         }
@@ -53,26 +65,59 @@ namespace ControlIC.Controllers
         }
 
         // GET: Atividades/Create
-        public IActionResult Create()
+        public  IActionResult Create(int? id)
         {
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome");
-            return View();
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var projeto = _context.Projetos.Where(p => p.ID == id).Include(p => p.ProjetoEstudantes).ThenInclude(p => p.Usuario).FirstOrDefault();
+
+            if (projeto == null)
+            {
+                return NotFound();
+            }
+            AtividadeModel atividadeModel = new AtividadeModel();
+            
+            foreach(var i in projeto.ProjetoEstudantes)
+            {
+                atividadeModel.Responsaveis.Add( 
+                    new AtividadeResponsavelModel {
+                        Selecionado = false,
+                        Usuario = i.Usuario
+                    }
+                );
+            }
+            
+
+            //ViewBag.ProjetoParticipantes = projeto.ProjetoEstudantes;
+            ViewData["ProjetoID"] = projeto.ID;
+            ViewData["Projeto"] = projeto.Nome;
+
+            return View(atividadeModel);
         }
 
         // POST: Atividades/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Titulo,Texto,DataPrevista,Restricao,Status,Cor,ProjetoID")] Atividade atividade)
+        public async Task<IActionResult> Create(int id ,Atividade atividade)
         {
+            var projeto = await _context.Projetos.FindAsync(id);
+            if (projeto == null)
+            {
+                return NotFound();
+            }
+
+            atividade.ProjetoID = id;
             if (ModelState.IsValid)
             {
                 _context.Add(atividade);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome", atividade.ProjetoID);
+            ViewData["Projeto"] = projeto.Nome;
             return View(atividade);
         }
 

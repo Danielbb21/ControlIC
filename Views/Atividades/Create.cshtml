@@ -1,43 +1,71 @@
-﻿@model ControlIC.Models.Atividade
+﻿@model ControlIC.Controllers.AtividadesController.AtividadeModel
 
 @{
+
     ViewData["Title"] = "Create";
 }
 
 <h1>Create</h1>
 
 <h4>Atividade</h4>
-<hr />
+<hr/>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Titulo" class="control-label"></label>
-                <input asp-for="Titulo" class="form-control" />
-                <span asp-validation-for="Titulo" class="text-danger"></span>
+                <label asp-for="Atividade.Titulo" class="control-label"></label>
+                <input asp-for="Atividade.Titulo" class="form-control" />
+                <span asp-validation-for="Atividade.Titulo" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Texto" class="control-label"></label>
-                <input asp-for="Texto" class="form-control" />
-                <span asp-validation-for="Texto" class="text-danger"></span>
+                <label asp-for="Atividade.Texto" class="control-label"></label>
+                <input asp-for="Atividade.Texto" class="form-control" />
+                <span asp-validation-for="Atividade.Texto" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DataPrevista" class="control-label"></label>
-                <input asp-for="DataPrevista" class="form-control" />
-                <span asp-validation-for="DataPrevista" class="text-danger"></span>
+                <label asp-for="Atividade.DataPrevista" class="control-label"></label>
+                <input asp-for="Atividade.DataPrevista" class="form-control" />
+                <span asp-validation-for="Atividade.DataPrevista" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Restricao" /> @Html.DisplayNameFor(model => model.Restricao)
+                    <input class="form-check-input" asp-for="Atividade.Restricao" /> @Html.DisplayNameFor(model => model.Atividade.Restricao)
                 </label>
             </div>
             <div class="form-group">
-                <label asp-for="ProjetoID" class="control-label"></label>
-                <select asp-for="ProjetoID" class ="form-control" asp-items="ViewBag.ProjetoID"></select>
+                <label class="control-label">@ViewData["Projeto"]</label>
             </div>
+            
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Estudante
+                        </th>
+                    </tr>
+                </thead>
+
+                @foreach (var item in Model.Responsaveis)
+                {
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" asp-for="@item.Selecionado" value="@item.Selecionado">
+                        </td>
+                        <td>
+                            @item.Usuario.Nome
+                        </td>
+                    </tr>
+                }
+            </table>
+            
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Criar" class="btn btn-primary" />
             </div>
         </form>
     </div>
