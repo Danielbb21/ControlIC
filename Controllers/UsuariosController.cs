@@ -509,7 +509,15 @@ namespace ControlIC.Controllers {
                     return NotFound();
                 }
 
-                var usuario = await _context.Usuarios.Include(u => u.Curso).Include(t => t.Titulacao).FirstOrDefaultAsync(m => m.ID == id);
+                var usuario = await _context.Usuarios.Include(u => u.Curso)
+                                    .Include(t => t.Titulacao)
+                                    .Include(p => p.ProjetoEstudantes)
+                                    .ThenInclude(p => p.Projeto)
+                                    .ThenInclude(p => p.Usuario)
+                                    .Include(p => p.projetoCoorientadores)
+                                    .ThenInclude(p => p.Projeto)
+                                    .ThenInclude(p => p.Usuario)
+                                    .FirstOrDefaultAsync(m => m.ID == id);
 
                 if (usuario == null)
                 {
@@ -756,7 +764,73 @@ namespace ControlIC.Controllers {
             }
 
         //---------------------------------------------------------------------------------------------------//
+        
+        public async Task<IActionResult> AceitarConvite(int id) 
+        {
+            int tipo = int.Parse(User.Claims.ElementAt(1).Value);
+            int idUsuario = int.Parse(User.Claims.ElementAt(3).Value);
+            int idProjeto = 0;
 
+            if (tipo == 1) 
+            {
+                var projetoEstudante = _context.ProjetoEstudantes.Where(pe => pe.ID == id && pe.UsuarioID == idUsuario).FirstOrDefault();
+                if (projetoEstudante == null) return NotFound();
+                else 
+                {
+                    idProjeto = projetoEstudante.ProjetoID;
+
+                    projetoEstudante.Aprovado = true;
+                    _context.Update(projetoEstudante);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else 
+            {
+                var projetoCoorientador = _context.ProjetoCoorientadores.Where(pe => pe.ID == id && pe.UsuarioID == idUsuario).FirstOrDefault();
+                if (projetoCoorientador == null) return NotFound();
+                else 
+                {
+                    idProjeto = projetoCoorientador.ProjetoID;
+
+                    projetoCoorientador.Aprovado = true;
+                    _context.Update(projetoCoorientador);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return RedirectToAction("Details", "Projetos", new { id = idProjeto});
+        }
+
+        public async Task<IActionResult> RecusarConvite(int id) 
+        {
+            int tipo = int.Parse(User.Claims.ElementAt(1).Value);
+            int idUsuario = int.Parse(User.Claims.ElementAt(3).Value);
+
+            if (tipo == 1)
+            {
+                var projetoEstudante = _context.ProjetoEstudantes.Where(pe => pe.ID == id && pe.UsuarioID == idUsuario).FirstOrDefault();
+                if (projetoEstudante == null) return NotFound();
+                else
+                {
+                    _context.Remove(projetoEstudante);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                var projetoCoorientador = _context.ProjetoCoorientadores.Where(pe => pe.ID == id && pe.UsuarioID == idUsuario).FirstOrDefault();
+                if (projetoCoorientador == null) return NotFound();
+                else
+                {
+                    _context.Update(projetoCoorientador);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return RedirectToAction(nameof(UserPage));
+        }
+
+        //---------------------------------------------------------------------------------------------------//
             // Conteudo do crud.
 
             // GET: Usuarios

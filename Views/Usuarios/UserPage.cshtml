@@ -22,76 +22,158 @@
         border: 3px solid #000;
     }
 
-    .row{
-        display:flex;
+    .row {
+        display: flex;
     }
 
     .column {
         float: left;
-        
     }
 
     .left {
-        width: 30%;
+        width: auto;
     }
 
     .right {
-        width: 25%;
+        margin-left: 20px;
+        width: auto;
     }
 
-    .center{
-        width: 45%
+    .center {
+        margin-left: 20px;
+        width: auto;
     }
-
 </style>
 
-<h1>Perfil do usuario</h1>
+<h1 style="display:flex; align-items:center">
+    <b style="width:90%">Perfil do usuario</b>
+    <a class="btn btn-warning" style="float:right; margin-top:5px" asp-action="EditUser">Editar Perfil</a>
+</h1>
 <hr />
-<br />
-<br />
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary(true)
 
-<fieldset style="align-items:center">
-    <div class="row">
-        <div class="column left">
-            <img src="@ViewBag.ImageData" style="background-color: black; border: 5px solid #000; border-color: black; width: 300px; height: 300px; border-radius: 200px" />
-            <br />
-            <br />
-            <a href="~/Usuarios/Logout" class="btn btn-warning">Logout</a>
-            <a class="btn btn-warning" asp-action="EditUser">Editar Perfil</a>
-            @if (Model.LinkedIn != null)
-            {
-                <a href="@Model.LinkedIn" class="btn btn-warning">LinkedIn</a>
-            }
+    <fieldset>
+        <div>
+            <div class="column left">
+                <img src="@ViewBag.ImageData" style="background-color: black; border: 5px solid #000; border-color: black; width: 100px; height: 100px; border-radius: 200px" />
+            </div>
+
+            <div class="column center" style="vertical-align:central; height:100px">
+                <div>
+                    <b style="font-size:large">Nome:</b>
+                    <label style="font-size:large" colspan="2">@Html.DisplayFor(model => model.Nome)</label>
+                </div>
+                <div style="margin-top:25px">
+                    <b style="font-size:large">Email:</b>
+                    <label style="font-size:large" colspan="2">@Html.DisplayFor(model => model.Email)</label>
+                </div>
+            </div>
+
+            <div class="column right" style="vertical-align:central; height:100px">
+                <div>
+                    <b style="font-size:large">Data de Nascimento:</b>
+                    <label style="font-size:large" colspan="2">@Html.DisplayFor(model => model.DataNascimento)</label>
+                </div>
+                <div style="margin-top:25px">
+                    <b style="font-size:large">@ViewBag.Especifico:</b>
+                    <label style="font-size:large" colspan="2">@ViewBag.ValorEspecifico</label>
+                </div>
+            </div>
         </div>
+    </fieldset>
+    <br />
+    <br />
+    <fieldset>
+        <h4>
+            <text>Convites</text> |  
+            <text>Atividades</text>
+        </h4>
+        <table class="table">
+            @if (User.Claims.ElementAt(1).Value == "1" && Model.ProjetoEstudantes.Count(p => !p.Aprovado) == 0)
+            {
+                <thead>
+                    <tr>
+                        <th>
+                            Não há convites para sua conta.
+                        </th>
+                    </tr>
+                </thead>
+            }
+            else if (User.Claims.ElementAt(1).Value == "2" && Model.projetoCoorientadores.Count(p => !p.Aprovado) == 0)
+            {
+                <thead>
+                    <tr>
+                        <th>
+                            Não há convites para sua conta.
+                        </th>
+                    </tr>
+                </thead>
+            }
+            else
+            {
+                <thead>
+                    <tr>
+                        <th>
+                            Projeto
+                        </th>
+                        <th>
+                            Professor
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (User.Claims.ElementAt(1).Value == "1")
+                    {
+                        foreach (var i in Model.ProjetoEstudantes)
+                        {
+                            @if (!i.Aprovado)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Details" asp-controller="Projetos" asp-route-id="@i.ProjetoID">@i.Projeto.Nome</a>
+                                    </td>
+                                    <td>@i.Projeto.Usuario.Nome</td>
+                                    <td>
+                                        <a asp-action="AceitarConvite" asp-route-id="@i.ID">Aceitar</a> |
+                                        <a asp-action="RecusarConvite" asp-route-id="@i.ID">Recusar</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var i in Model.projetoCoorientadores)
+                        {
+                            @if (!i.Aprovado)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Details" asp-controller="Projetos" asp-route-id="@i.ProjetoID">@i.Projeto.Nome</a>
+                                    </td>
+                                    <td>@i.Projeto.Usuario.Nome</td>
+                                    <td>
+                                        <a asp-action="AceitarConvite" asp-controller="Projetos" asp-route-id="@i.ID">Aceitar</a> |
+                                        <a asp-action="RecusarConvite" asp-controller="Projetos" asp-route-id="@i.ID">Recusar</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            }
 
-        <br />
 
-        <table class="column center" style="border-collapse: separate; border-spacing: 35px;">
-            <tr>
-                <th style="font-size:large">Nome:</th>
-                <td class="label-display" colspan="2">@Html.DisplayFor(model => model.Nome)</td>
-            </tr>
-            <tr>
-                <th style="font-size:large">Email:</th>
-                <td class="label-display" colspan="2">@Html.DisplayFor(model => model.Email)</td>
-            </tr>
-            <tr>
-                <th style="font-size:large">Data de Nascimento:</th>
-                <td class="label-display" colspan="2">@Html.DisplayFor(model => model.DataNascimento)</td>
-            </tr>
-            <tr>
-                <th style="font-size:large">@ViewBag.Especifico:</th>
-                <td class="label-display" colspan="2">@ViewBag.ValorEspecifico</td>
-            </tr>
         </table>
-    </div>
-    <br />
-    <br />
-    <div style="width:300px">
-        
-    </div>
-</fieldset>
+    </fieldset>
+
 }
+
+<script>
+
+    
+
+</script>

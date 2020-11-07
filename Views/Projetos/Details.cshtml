@@ -53,7 +53,12 @@
         @Model.Nome
         @if (int.Parse(User.Claims.ElementAt(3).Value) == Model.UsuarioID && Model.Aprovado)
         {
+            <a asp-action="Index" asp-controller="Recrutamentoes" class="btn btn-primary" style="float:right; margin-left:5px" asp-route-idProjeto="@Model.ID">Recrutamentos</a>
             <a asp-action="Edit" class="btn btn-primary" style="float:right" asp-route-id="@Model.ID">Edit</a>
+        }
+        else if(Model.Recrutamentos.Count(p => p.status) > 0)
+        {
+            <a asp-action="Details" asp-controller="Recrutamentoes" class="btn btn-primary" style="float:right; margin-left:5px" asp-route-id="@Model.Recrutamentos.Where(p=>p.status).FirstOrDefault().ID">Edital</a>
         }
     </h1>
     
@@ -96,29 +101,35 @@
             <img src="@Model.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
             <p style="padding-right:10px; white-space:nowrap ;text-overflow: clip;  padding-left:10px; white-space:nowrap ;display:inline-block">@Model.Usuario.Nome</p>
             <hr />
-            @if (Model.projetoCoorientadores != null && Model.projetoCoorientadores.Count() > 0)
+            @if (Model.projetoCoorientadores != null && Model.projetoCoorientadores.Count(p => p.Aprovado) > 0)
             {
                 <p style="font-weight:bold; font-size:larger;">Coorientadores:</p>
                 <hr />
                 foreach (var i in Model.projetoCoorientadores)
                 {
-                    <div>
-                        <img src="@i.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
-                        <p style="padding-right:10px; white-space:nowrap ;padding-left:10px ;text-overflow: clip; display:inline-block">@i.Usuario.Nome</p>
-                    </div>
+                    @if (i.Aprovado)
+                    {
+                        <div>
+                            <img src="@i.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
+                            <p style="padding-right:10px; white-space:nowrap ;padding-left:10px ;text-overflow: clip; display:inline-block">@i.Usuario.Nome</p>
+                        </div>
+                    }
                     <hr />
                 }
             }
-            @if (Model.ProjetoEstudantes != null && Model.ProjetoEstudantes.Count() > 0)
+            @if (Model.ProjetoEstudantes != null && Model.ProjetoEstudantes.Count(p => p.Aprovado) > 0)
             {
                 <p style="font-weight:bold; font-size:larger;">Estudantes:</p>
                 <hr />
                 foreach (var i in Model.ProjetoEstudantes)
                 {
-                    <div>
-                        <img src="@i.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
-                        <p style="padding-right:10px; white-space:nowrap ;padding-left:10px ;text-overflow: clip; display:inline-block">@i.Usuario.Nome</p>
-                    </div>
+                    @if (i.Aprovado)
+                    {
+                        <div>
+                            <img src="@i.Usuario.ImgUrl" height="50" width="50" style="border-radius:200px" />
+                            <p style="padding-right:10px; white-space:nowrap ;padding-left:10px ;text-overflow: clip; display:inline-block">@i.Usuario.Nome</p>
+                        </div>
+                    }
                     <hr />
                 }
             }

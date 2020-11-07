@@ -115,8 +115,13 @@
                         }
                         else
                         {
-                            <select class="input-noborder" asp-for="TitulacaoID" asp-items="ViewBag.TitulacaoID"></select>
-                            <span asp-validation-for="TitulacaoID" class="text-danger"></span>
+                            <input type="hidden" asp-for="TitulacaoID" />
+                            <input type="hidden" asp-for="Titulacao.NomeInstituicao" />
+                            <select class="input-noborder" asp-for="Titulacao.NomeTitulacao">
+                                <option value="Mestre">Mestre</option>
+                                <option value="Doutor">Doutor</option>
+                            </select>
+                            <span asp-validation-for="Titulacao.NomeTitulacao" class="text-danger"></span>
                         }
                     </td>
                 </tr>

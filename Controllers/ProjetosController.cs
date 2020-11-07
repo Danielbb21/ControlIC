@@ -129,6 +129,7 @@ namespace ControlIC.Controllers
                 .ThenInclude(p => p.Usuario)
                 .Include(p => p.projetoCoorientadores)
                 .ThenInclude(p => p.Usuario)
+                .Include(p => p.Recrutamentos)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (projeto == null)
             {
@@ -206,6 +207,12 @@ namespace ControlIC.Controllers
                 return RedirectToAction(nameof(Details), p.ID);
             }
 
+            if(usuario.ID == int.Parse(User.Claims.ElementAt(3).Value)) 
+            {
+                TempData["Aviso"] = "Email inválido.";
+                return RedirectToAction(nameof(Details), p.ID);
+            }
+
             if(usuario != null) 
             {
                 if(usuario.TipoUsuario == 1) 
@@ -254,10 +261,6 @@ namespace ControlIC.Controllers
                     ID = projetoCoorientador.ID;
                     Token = projetoCoorientador.Token;
                 }
-
-                EnviarEmail(usuario.Email, "Convite",
-                                            "Você foi convidado para participar do projeto " + p.Nome + ". Siga o link para aceitar o convite:",
-                                            "https://localhost:44346/Projetos/ConviteAceito?id=" + ID + "&Token=" + Token);
 
                 TempData["Aviso"] = "Enviado com sucesso.";
             }
@@ -402,8 +405,6 @@ namespace ControlIC.Controllers
 
                 if (projeto.OutrasInformacoes == null || projeto.OutrasInformacoes.Trim().Length <= 0) ModelState.AddModelError("OutrasInformacoes", "Preencha este campo");
 
-                if (projeto.CampoPesquisaID <= 0) ModelState.AddModelError("CampoPesquisaID", "Selecione uma opção");
-
                 if (projeto.CampoPesquisa.Nome != null)
                 {
                     var cp = _context.CampoPesquisas.Where(cp => cp.Nome == projeto.CampoPesquisa.Nome).FirstOrDefault();
@@ -421,7 +422,8 @@ namespace ControlIC.Controllers
                 }
                 else
                 {
-                    projeto.CampoPesquisa = _context.CampoPesquisas.Where(cp => cp.ID == projeto.CampoPesquisaID).FirstOrDefault();
+                    if (projeto.CampoPesquisaID <= 0) ModelState.AddModelError("CampoPesquisaID", "Selecione uma opção");
+                    else projeto.CampoPesquisa = _context.CampoPesquisas.Where(cp => cp.ID == projeto.CampoPesquisaID).FirstOrDefault();
                 }
 
                 if (projeto.ImgProjetoFormato == null) 
@@ -576,6 +578,14 @@ namespace ControlIC.Controllers
 
                 try
                 {
+
+                    //////////////////////////////////////////////
+
+                    projeto.Aprovado = true;
+
+                    //////////////////////////////////////////////
+                    
+
                     _context.Update(projeto);
                     await _context.SaveChangesAsync();
                 }
