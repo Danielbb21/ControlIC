@@ -22,19 +22,20 @@ namespace ControlIC.Controllers
         public class AtividadeResponsavelModel
         {
             public bool Selecionado { get; set; }
-            public Usuario Usuario { get; set; }
+            public int UsuarioID { get; set; }
+            public string Nome { get; set; }
         }
 
         public class AtividadeModel{
             public Atividade Atividade { get; set; }
             public List<AtividadeResponsavelModel> Responsaveis { get; set; }
         }
-
+        
         // GET: Atividades
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? Id)
         {
 
-            var controlICContext = _context.Atividades.Include(a => a.Projeto);
+            var controlICContext = _context.Atividades.Include(a => a.Projeto).Where(a => a.ProjetoID == Id);
             return View(await controlICContext.ToListAsync());
         }
 
@@ -79,14 +80,19 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
-            AtividadeModel atividadeModel = new AtividadeModel();
+            AtividadeModel atividadeModel = new AtividadeModel
+            {
+                Atividade = new Atividade(),
+                Responsaveis = new List<AtividadeResponsavelModel>()
+            };
             
             foreach(var i in projeto.ProjetoEstudantes)
             {
                 atividadeModel.Responsaveis.Add( 
                     new AtividadeResponsavelModel {
                         Selecionado = false,
-                        Usuario = i.Usuario
+                        UsuarioID = i.Usuario.ID,
+                        Nome = i.Usuario.Nome
                     }
                 );
             }
@@ -102,7 +108,8 @@ namespace ControlIC.Controllers
         // POST: Atividades/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int id ,Atividade atividade)
+
+        public async Task<IActionResult> Create(int id ,AtividadeModel atividadeModel)
         {
             var projeto = await _context.Projetos.FindAsync(id);
             if (projeto == null)
@@ -110,15 +117,30 @@ namespace ControlIC.Controllers
                 return NotFound();
             }
 
-            atividade.ProjetoID = id;
+            atividadeModel.Atividade.ProjetoID = id;
             if (ModelState.IsValid)
             {
-                _context.Add(atividade);
+                _context.Add(atividadeModel.Atividade);
+                await _context.SaveChangesAsync();
+                if (atividadeModel.Responsaveis != null)
+                {
+                    foreach (var item in atividadeModel.Responsaveis.Where(R => R.Selecionado))
+                    {
+                        AtividadeResponsavel atvResp = new AtividadeResponsavel
+                        {
+                            UsuarioID = item.UsuarioID,
+                            AtividadeID = atividadeModel.Atividade.ID,
+                            Entregue = false
+                        };
+                        _context.Add(atvResp);
+                    }
+                }
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["Projeto"] = projeto.Nome;
-            return View(atividade);
+            return View(atividadeModel);
         }
 
         // GET: Atividades/Edit/5

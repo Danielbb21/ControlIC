@@ -49,18 +49,17 @@
                         </th>
                     </tr>
                 </thead>
-
-                @foreach (var item in Model.Responsaveis)
+                @for(int i =0; i<Model.Responsaveis.Count();i++)
                 {
-
                     <tr>
                         <td>
-                            <input type="checkbox" asp-for="@item.Selecionado" value="@item.Selecionado">
+                            <input type="checkbox" asp-for="@Model.Responsaveis[i].Selecionado">
                         </td>
                         <td>
-                            @item.Usuario.Nome
+                            <label asp-for="@Model.Responsaveis[i].UsuarioID" class="control-label"> @Model.Responsaveis[i].Nome</label>
                         </td>
                     </tr>
+                    
                 }
             </table>
             

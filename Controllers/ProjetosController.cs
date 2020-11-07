@@ -471,8 +471,15 @@ namespace ControlIC.Controllers
 
 
                 _context.Add(projeto);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.ErroGeral = "Ocorreu um erro tente novamente. Professor necessita ser doutor para criar um projeto.";
+                } 
             }
 
             ViewData["CampoPesquisaID"] = new SelectList(_context.CampoPesquisas, "ID", "Nome", projeto.CampoPesquisaID);
