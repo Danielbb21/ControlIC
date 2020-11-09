@@ -7,42 +7,47 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Recrutamento</h4>
+    <h4>Recrutamento: @ViewBag.Titulo</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descricao)
+        <dt class="col-sm-2">
+            Descrição:
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10" style="text-align:justify">
             @Html.DisplayFor(model => model.Descricao)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LinkExterno)
+        <dt class="col-sm-2">
+            Link Externo:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LinkExterno)
+        <dd class="col-sm-10">
+            <a href="@Model.LinkExterno" target="_blank">Link Externo</a>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DataPostagem)
+        <dt class="col-sm-2">
+            Data de Postagem:
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.DataPostagem)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.status)
+        <dt class="col-sm-2">
+            Status:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Projeto)
+        @if (Model.status)
+        {
+            <dd class="col-sm-10" style="color:green">
+                Ativo
+            </dd>
+        }
+        else
+        {
+            <dd class="col-sm-10" style="color:red">
+                N/A
+            </dd>
+        }
+        <dt class="col-sm-2">
+            Edital:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Projeto.ID)
+        <dd class="col-sm-10">
+            <a asp-action="Download" asp-controller="Recrutamentoes" asp-route-id="@Model.ID" target="_blank">Download Edital</a>
         </dd>
     </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
 </div>

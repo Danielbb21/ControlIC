@@ -9,6 +9,7 @@ using ControlIC.Data;
 using ControlIC.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Reflection.Metadata;
 
 namespace ControlIC.Controllers
 {
@@ -28,6 +29,8 @@ namespace ControlIC.Controllers
             var projeto = _context.Projetos.Where(p => p.ID == idProjeto && p.UsuarioID == idUsuario).FirstOrDefault();
 
             if (projeto == null) return NotFound();
+
+            ViewBag.Titulo = projeto.Nome;
 
             HttpContext.Session.SetInt32("IdProjeto",idProjeto);
 
@@ -59,7 +62,25 @@ namespace ControlIC.Controllers
                 if (!recrutamento.status) return NotFound();
             }
 
+            //var ArquivoPdf = new FileContentResult(recrutamento.Arquivo, "application/pdf");
+
+            ViewBag.Titulo = recrutamento.Projeto.Nome;
+
             return View(recrutamento);
+        }
+
+        public IActionResult Download(int id)
+        {
+            int idUser = int.Parse(User.Claims.ElementAt(3).Value);
+
+            var recrutamento = _context.Recrutamentos.Where(r => r.ID == id).Include(p => p.Projeto).FirstOrDefault();
+
+            if (recrutamento == null) return NotFound();
+            else if (!recrutamento.status && recrutamento.Projeto.UsuarioID != idUser) return NotFound();
+
+            var ArquivoPdf = new FileContentResult(recrutamento.Arquivo, "application/pdf");
+            ArquivoPdf.FileDownloadName = "Edital_" + recrutamento.Projeto.Nome + ".pdf";
+            return ArquivoPdf;
         }
 
         // GET: Recrutamentoes/Create
@@ -95,8 +116,28 @@ namespace ControlIC.Controllers
                     recrutamento.Arquivo = ms.ToArray();
                 }
 
+                if (!recrutamento.LinkExterno.Contains("https://")) 
+                {
+                    recrutamento.LinkExterno = "https://" + recrutamento.LinkExterno;
+                }
+
                 _context.Add(recrutamento);
                 await _context.SaveChangesAsync();
+
+                if (recrutamento.status) 
+                {
+                    var projeto = _context.Projetos.Where(p => p.ID == recrutamento.ProjetoID).Include(p => p.Recrutamentos).FirstOrDefault();
+                    foreach (var item in projeto.Recrutamentos)
+                    {
+                        if (item.ID != recrutamento.ID && item.status)
+                        {
+                            item.status = false;
+                            _context.Update(item);
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index), new { idProjeto = recrutamento.ProjetoID });
             }
 
@@ -127,7 +168,7 @@ namespace ControlIC.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Descricao,LinkExterno,ArquivoFormato,DataPostagem,status,ProjetoID")] Recrutamento recrutamento)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Descricao,LinkExterno,Arquivo,ArquivoFormato,DataPostagem,status,ProjetoID")] Recrutamento recrutamento)
         {
             if (id != recrutamento.ID)
             {
@@ -138,6 +179,13 @@ namespace ControlIC.Controllers
             {
                 try
                 {
+                    if (!recrutamento.LinkExterno.Contains("https://"))
+                    {
+                        recrutamento.LinkExterno = "https://" + recrutamento.LinkExterno;
+                    }
+
+                    recrutamento.DataPostagem = DateTime.Now;
+
                     IFormFile arquivo = recrutamento.ArquivoFormato;
                     if (arquivo != null)
                     {

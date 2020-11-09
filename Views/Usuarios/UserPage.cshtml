@@ -87,10 +87,10 @@
     <br />
     <fieldset>
         <h4>
-            <text>Convites</text> |  
-            <text>Atividades</text>
+            <text onclick="ExibirTableConvites(event)" id="TextConvites">Convites</text> |  
+            <text id="TextAtividades">Atividades</text>
         </h4>
-        <table class="table">
+        <table id="TableConvites" style="display:none" class="table">
             @if (User.Claims.ElementAt(1).Value == "1" && Model.ProjetoEstudantes.Count(p => !p.Aprovado) == 0)
             {
                 <thead>
@@ -168,12 +168,27 @@
 
 
         </table>
+
     </fieldset>
 
 }
 
 <script>
 
-    
+    var ExibirTableConvites = function (event) {
+        var TextConvites = document.getElementById("TextConvites");
+        var TableConvites = document.getElementById("TableConvites");
+
+        if (TableConvites.style.display == "none")
+        {
+            TableConvites.style.display = "table";
+            TextConvites.style.textDecoration = "underline";
+        }
+        else
+        {
+            TableConvites.style.display = "none";
+            TextConvites.style.textDecoration = "none";
+        }
+    };
 
 </script>
