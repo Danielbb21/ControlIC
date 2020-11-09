@@ -20,6 +20,5 @@ namespace ControlIC.Models
         public int ProjetoID { get; set; }
         public virtual Projeto Projeto { get; set; }
         public virtual List<Usuario> Participantes { get; set; }
-
     }
 }

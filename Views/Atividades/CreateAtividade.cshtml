@@ -1,0 +1,115 @@
+﻿@model ControlIC.Controllers.AtividadesController.AtividadeModel
+
+@{
+    ViewData["Title"] = "CreateAtividade";
+}
+
+<h1>Criar atividade</h1>
+<h4>Atividade</h4>
+<hr />
+
+<form asp-action="CreateAtividade">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="form-group">
+                <label class="control-label">Título</label>
+                <input asp-for="Atividade.Titulo" class="form-control" />
+                <span asp-validation-for="Atividade.Titulo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Atividade.Texto" class="control-label"></label>
+                <input asp-for="Atividade.Texto" class="form-control" />
+                <span asp-validation-for="Atividade.Texto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Data de Entrega</label>
+                <input asp-for="Atividade.DataPrevista" class="form-control" />
+                <span asp-validation-for="Atividade.DataPrevista" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Atividade.Restricao" /> Documentos públicos
+                </label>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="form-group">
+                <div class="text-danger">
+                    @{
+                        if (ViewBag.Erros != null)
+                        {
+                            foreach (var txt in ViewBag.Erros)
+                            {
+                                <label>@txt</label><br>
+                            }
+                        }
+                    }
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td colspan="3" class="text-center align-middle">
+                                <strong>Selecione os responsáveis</strong>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            if (Model.AtividadeResponsaveisModel.Count() > 0)
+                            {
+                                @for (int i = 0; i < Model.AtividadeResponsaveisModel.Count(); i++)
+                                {
+                                    <tr>
+                                        <td class="text-center align-middle">
+                                            <input type="checkbox" asp-for="@Model.AtividadeResponsaveisModel[i].Selecionado">
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <img src="@Model.AtividadeResponsaveisModel[i].ImgUsuario" style="border-style:solid; border-color:black; border-width:1px; width:50px; height:50px; border-radius:100px" />
+                                            @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].ImgUsuario)
+                                            @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].UsuarioID)<!--Permite persistir dados porem ocultando eles para o usuario porem guardando eles caso necessite enviar os dados para o controller da tela-->
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <label>@Model.AtividadeResponsaveisModel[i].NomeUsuario</label>
+                                            @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].NomeUsuario)
+                                        </td>
+                                    </tr>
+                                }
+
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center align-middle">
+                                        Nenhum estudante encontrado
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            @{
+                if (Model.AtividadeResponsaveisModel.Count() > 0)
+                {
+                    <input type="submit" value="Criar Atividade" class="btn btn-success" />
+                }
+                else
+                {
+                    <input type="submit" value="Criar Atividade" disabled class="btn btn-success" />
+                }
+            }
+        </div>       <div class="col-md-1">
+            <a asp-action="Index" asp-route-id="@ViewData["ProjetoID"]" class="btn btn-primary">Voltar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    
+}

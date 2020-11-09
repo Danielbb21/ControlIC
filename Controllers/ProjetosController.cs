@@ -207,15 +207,15 @@ namespace ControlIC.Controllers
                 return RedirectToAction(nameof(Details), p.ID);
             }
 
-            if(usuario.ID == int.Parse(User.Claims.ElementAt(3).Value)) 
-            {
-                TempData["Aviso"] = "Email inválido.";
-                return RedirectToAction(nameof(Details), p.ID);
-            }
-
             if(usuario != null) 
             {
-                if(usuario.TipoUsuario == 1) 
+                if (usuario.ID == Int32.Parse(HttpContext.User.Claims.ToList()[3].Value))
+                {
+                    TempData["Aviso"] = "Email inválido.";
+                    return RedirectToAction(nameof(Details), p.ID);
+                }
+
+                if (usuario.TipoUsuario == 1) 
                 {
                     var UsuarioProjeto = _context.ProjetoEstudantes.Where(up => up.UsuarioID == usuario.ID && up.ProjetoID == p.ID).FirstOrDefault();
 
@@ -261,6 +261,7 @@ namespace ControlIC.Controllers
                     ID = projetoCoorientador.ID;
                     Token = projetoCoorientador.Token;
                 }
+
 
                 TempData["Aviso"] = "Enviado com sucesso.";
             }
