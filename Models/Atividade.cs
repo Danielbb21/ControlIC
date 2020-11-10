@@ -19,6 +19,6 @@ namespace ControlIC.Models
         public string Cor { get; set; }
         public int ProjetoID { get; set; }
         public virtual Projeto Projeto { get; set; }
-        public virtual List<Usuario> Participantes { get; set; }
+        public virtual List<AtividadeResponsavel> Participantes { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ControlIC.Controllers
 {
@@ -184,10 +185,10 @@ namespace ControlIC.Controllers
             }
             
             if(_context.Atividades.Where(p => p.ProjetoID == idProjetoUrl) == null) return NotFound();
-
-
+            
             var controlICContext = _context.Atividades.Include(a => a.Projeto).Where(a => a.ProjetoID == id);
             ViewData["ProjetoID"] = idProjetoUrl;
+            ViewBag.NomeProjeto = controlICContext.First().Projeto.Nome;
             return View(await controlICContext.ToListAsync());
         }
 
@@ -202,102 +203,15 @@ namespace ControlIC.Controllers
             var atividade = await _context.Atividades
                .Include(a => a.Projeto)
                .Include(a => a.Participantes)
+               .ThenInclude(A => A.Usuario)
                .FirstOrDefaultAsync(m => m.ID == id);
             if (atividade == null)
             {
                 return NotFound();
             }
-            var atvResp = _context.AtividadeResponsaveis.Where(AtividadeResponsavel => AtividadeResponsavel.AtividadeID == atividade.ID);
-            foreach (var item in atvResp)
-            {
-                var Responsavel = _context.Usuarios.Find(item.UsuarioID);
-                atividade.Participantes.Add(Responsavel);
-            }
-
+            
             return View(atividade);
         }
-
-        
-        /*
-        // GET: Atividades/Create
-        public  IActionResult Create(int? id)
-        {
-
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var projeto = _context.Projetos.Where(p => p.ID == id).Include(p => p.ProjetoEstudantes).ThenInclude(p => p.Usuario).FirstOrDefault();
-
-            if (projeto == null)
-            {
-                return NotFound();
-            }
-            AtividadeModel atividadeModel = new AtividadeModel
-            {
-                Atividade = new Atividade(),
-                Responsaveis = new List<AtividadeResponsavelModel>()
-            };
-            
-            foreach(var i in projeto.ProjetoEstudantes)
-            {
-                atividadeModel.Responsaveis.Add( 
-                    new AtividadeResponsavelModel {
-                        Selecionado = false,
-                        UsuarioID = i.Usuario.ID,
-                        Nome = i.Usuario.Nome
-                    }
-                );
-            }
-            
-
-            //ViewBag.ProjetoParticipantes = projeto.ProjetoEstudantes;
-            ViewData["ProjetoID"] = projeto.ID;
-            ViewData["Projeto"] = projeto.Nome;
-
-            return View(atividadeModel);
-        }
-
-        // POST: Atividades/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int id ,AtividadeModel atividadeModel)
-        {
-            var projeto = await _context.Projetos.FindAsync(id);
-            if (projeto == null)
-            {
-                return NotFound();
-            }
-
-            atividadeModel.Atividade.ProjetoID = id;
-            if (ModelState.IsValid)
-            {
-                _context.Add(atividadeModel.Atividade);
-                await _context.SaveChangesAsync();
-                if (atividadeModel.Responsaveis != null)
-                {
-                    foreach (var item in atividadeModel.Responsaveis.Where(R => R.Selecionado))
-                    {
-                        AtividadeResponsavel atvResp = new AtividadeResponsavel
-                        {
-                            UsuarioID = item.UsuarioID,
-                            AtividadeID = atividadeModel.Atividade.ID,
-                            Entregue = false
-                        };
-                        _context.Add(atvResp);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["Projeto"] = projeto.Nome;
-            return View(atividadeModel);
-        }
-
-        */
-        
 
         // GET: Atividades/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -312,7 +226,7 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome", atividade.ProjetoID);
+
             return View(atividade);
         }
 
@@ -321,12 +235,33 @@ namespace ControlIC.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Titulo,Texto,DataPrevista,Restricao,Status,Cor,ProjetoID")] Atividade atividade)
+        public async Task<IActionResult> Edit(int id, Atividade atividade)
         {
             if (id != atividade.ID)
             {
                 return NotFound();
             }
+            //
+            int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
+            if (tipoUser != 2) return NotFound();
+
+            // Verifica é orientador ou coorientador do projeto passado pela URL
+            int idUsuarioLogado = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
+            var responsavelOrientador = _context.Projetos.Where(p => p.UsuarioID == idUsuarioLogado && p.ID == atividade.ProjetoID).FirstOrDefault();
+            var responsavelCoorientador = _context.ProjetoCoorientadores.Where(p => p.UsuarioID == idUsuarioLogado && p.ProjetoID == atividade.ProjetoID).FirstOrDefault();
+
+            //Verifica se há um orientador ou coorientador logado
+            if (responsavelOrientador == null && responsavelCoorientador == null)
+            {
+                return NotFound();
+            }
+
+            if (atividade.Titulo == null || atividade.Titulo.Trim().Length <= 0) ModelState.AddModelError("Titulo", "Preencha este campo");
+            else if (atividade.Titulo.Length > 50) ModelState.AddModelError("Titulo", "Limite de 50 caracteres");
+            if (atividade.Texto == null || atividade.Texto.Trim().Length <= 0) ModelState.AddModelError("Texto", "Preencha este campo");
+            else if (atividade.Texto.Length > 200) ModelState.AddModelError("Texto", "Limite de 200 caracteres");
+            if (atividade.DataPrevista == null) ModelState.AddModelError("DataPrevista", "Selecione uma data");
+            else if (DateTime.Compare(atividade.DataPrevista, DateTime.Now) < 0) ModelState.AddModelError("DataPrevista", "Selecione um dia de entrega válido");
 
             if (ModelState.IsValid)
             {
@@ -346,9 +281,9 @@ namespace ControlIC.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { id= atividade.ProjetoID});
             }
-            ViewData["ProjetoID"] = new SelectList(_context.Projetos, "ID", "Nome", atividade.ProjetoID);
+
             return View(atividade);
         }
 
@@ -377,14 +312,30 @@ namespace ControlIC.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var atividade = await _context.Atividades.FindAsync(id);
+            int projetoID = atividade.ProjetoID;
             _context.Atividades.Remove(atividade);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { id = projetoID});
         }
 
         private bool AtividadeExists(int id)
         {
             return _context.Atividades.Any(e => e.ID == id);
+        }
+
+        public IActionResult Download(int id)
+        {
+            int idUser = int.Parse(User.Claims.ElementAt(3).Value);
+            int atvResponsavelID = id;
+            var Resposta = _context.AtividadeResponsaveis.Where(r => r.ID == atvResponsavelID).Include(a => a.Usuario).Include(a => a.Atividade).FirstOrDefault();
+
+            if (Resposta == null || Resposta.Arquivo == null) return NotFound();
+            if (Resposta.Atividade == null) return NotFound();
+            else if (!Resposta.Atividade.Restricao && Resposta.UsuarioID != idUser) return NotFound();
+
+            var ArquivoPdf = new FileContentResult(Resposta.Arquivo, "application/pdf");
+            ArquivoPdf.FileDownloadName = Resposta.Atividade.Titulo +"_"+ Resposta.Usuario.Nome + ".pdf";
+            return ArquivoPdf;
         }
     }
 }

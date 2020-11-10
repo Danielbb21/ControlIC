@@ -32,7 +32,7 @@ namespace ControlIC
 
             services.AddSession(options =>
             {
-                //options.IdleTimeout = TimeSpan.FromSeconds(5);
+                options.IdleTimeout = TimeSpan.FromSeconds(3);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Atividades: @ViewBag.NomeProjeto</h1>
 
 <p>
     <a asp-action="CreateAtividade" asp-route-id="@ViewData["ProjetoID"]">Criar atividade</a>
@@ -12,6 +12,9 @@
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Cor)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Titulo)
             </th>
@@ -21,21 +24,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.DataPrevista)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Restricao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cor)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Projeto)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                <label style="background-color: rgb(@item.Cor); border:solid #262626 1px; padding: 12px; border-radius: 200px;" />
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Titulo)
             </td>
@@ -44,15 +41,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.DataPrevista)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Restricao)
-            </td>
-            <td>
-                <label style="background-color: rgb(@item.Cor); border:solid #262626 1px; padding: 12px; border-radius: 200px;" />
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Projeto.ID)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |

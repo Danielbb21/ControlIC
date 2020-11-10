@@ -62,18 +62,25 @@
         @foreach (var item in Model.Participantes)
         {
 
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-        </tr>
+    <tr>
+         <td>
+            @Html.DisplayFor(modelItem => item.Usuario.Nome)
+         </td>
+         <td>
+            @Html.DisplayFor(modelItem => item.Usuario.Email)
+         </td>
+         <td>
+             @if (item.Arquivo != null)
+             {
+                 <a asp-action="Download" asp-route-id="@item.ID" target="_blank">Download</a>
+             }
+
+         </td>
+    </tr>
         }
     </table>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-id="@Model.ProjetoID">Back to List</a>
 </div>
