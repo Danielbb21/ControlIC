@@ -10,84 +10,88 @@
 
 <form asp-action="CreateAtividade">
     <div class="row">
-        <div class="col-md-5">
-            <div class="form-group">
+        <div class="col-md-5" style="flex: 0 0 80%; max-width: 80%;">
+            <div class="form-group" style="float:left; padding: 0px 20px 0px 0px;">
                 <label class="control-label">Título</label>
-                <input asp-for="Atividade.Titulo" class="form-control" />
+                <input asp-for="Atividade.Titulo" class="form-control" style="width:380px"/>
                 <span asp-validation-for="Atividade.Titulo" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="float:right;">
+                <label class="control-label">Data de Entrega</label>
+                <input asp-for="Atividade.DataPrevista" class="form-control" value="@DateTime.Now"/>
+                <span asp-validation-for="Atividade.DataPrevista" class="text-danger" ></span>
+            </div>
+            <div class="form-group" style="clear:both">
                 <label asp-for="Atividade.Texto" class="control-label"></label>
-                <input asp-for="Atividade.Texto" class="form-control" />
+                <textarea asp-for="Atividade.Texto" class="form-control" style="height:100px; resize: none" ></textarea>
                 <span asp-validation-for="Atividade.Texto" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label class="control-label">Data de Entrega</label>
-                <input asp-for="Atividade.DataPrevista" class="form-control" />
-                <span asp-validation-for="Atividade.DataPrevista" class="text-danger"></span>
-            </div>
+
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Atividade.Restricao" /> Documentos públicos
                 </label>
             </div>
         </div>
-        <div class="col-md-5">
-            <div class="form-group">
-                <div class="text-danger">
-                    @{
-                        if (ViewBag.Erros != null)
+
+    </div>
+    <div class="col-md-5" style="max-width: 60%; ">
+        <div class="form-group" style="max-height: 280px; overflow: auto;">
+            <div class="text-danger">
+                @{
+                    if (ViewBag.Erros != null)
+                    {
+                        foreach (var txt in ViewBag.Erros)
                         {
-                            foreach (var txt in ViewBag.Erros)
-                            {
-                                <label>@txt</label><br>
-                            }
+                            <label>@txt</label><br>
                         }
                     }
-                </div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <td colspan="3" class="text-center align-middle">
-                                <strong>Selecione os responsáveis</strong>
-                            </td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            if (Model.AtividadeResponsaveisModel.Count() > 0)
-                            {
-                                @for (int i = 0; i < Model.AtividadeResponsaveisModel.Count(); i++)
-                                {
-                                    <tr>
-                                        <td class="text-center align-middle">
-                                            <input type="checkbox" asp-for="@Model.AtividadeResponsaveisModel[i].Selecionado">
-                                        </td>
-                                        <td class="text-center align-middle">
-                                            <img src="@Model.AtividadeResponsaveisModel[i].ImgUsuario" style="border-style:solid; border-color:black; border-width:1px; width:50px; height:50px; border-radius:100px" />
-                                            @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].ImgUsuario)
-                                            @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].UsuarioID)<!--Permite persistir dados porem ocultando eles para o usuario porem guardando eles caso necessite enviar os dados para o controller da tela-->
-                                        </td>
-                                        <td class="text-center align-middle">
-                                            <label>@Model.AtividadeResponsaveisModel[i].NomeUsuario</label>
-                                            @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].NomeUsuario)
-                                        </td>
-                                    </tr>
-                                }
-
-                            }
-                            else
+                }
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td colspan="3" class="text-center align-middle">
+                            <strong>Selecione os responsáveis</strong>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        if (Model.AtividadeResponsaveisModel.Count() > 0)
+                        {
+                            @for (int i = 0; i < Model.AtividadeResponsaveisModel.Count(); i++)
                             {
                                 <tr>
-                                    <td colspan="3" class="text-center align-middle">
-                                        Nenhum estudante encontrado
+                                    <td class="text-center align-middle">
+                                        <input type="checkbox" asp-for="@Model.AtividadeResponsaveisModel[i].Selecionado">
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <img src="@Model.AtividadeResponsaveisModel[i].ImgUsuario" style="border-style:solid; border-color:black; border-width:1px; width:50px; height:50px; border-radius:100px" />
+                                        @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].ImgUsuario)
+                                        @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].UsuarioID)
+                                        <!--Permite persistir dados porem ocultando eles para o usuario porem guardando eles caso necessite enviar os dados para o controller da tela-->
+
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <label>@Model.AtividadeResponsaveisModel[i].NomeUsuario</label>
+                                        @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].NomeUsuario)
                                     </td>
                                 </tr>
                             }
+
                         }
-                    </tbody>
-                </table>
-            </div>
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center align-middle">
+                                    Nenhum estudante encontrado
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="row">
