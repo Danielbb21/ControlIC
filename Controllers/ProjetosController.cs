@@ -623,6 +623,8 @@ namespace ControlIC.Controllers
                 return NotFound();
             }
 
+            if (!ValidarUsuario()) return NotFound();
+
             var projeto = await _context.Projetos
                 .Include(p => p.CampoPesquisa)
                 .Include(p => p.Usuario)
@@ -649,6 +651,44 @@ namespace ControlIC.Controllers
         private bool ProjetoExists(int id)
         {
             return _context.Projetos.Any(e => e.ID == id);
+        }
+
+        public IActionResult IndexADM(string Nome) 
+        {
+            var listProjetos = _context.Projetos.Include(p => p.CampoPesquisa).ToList();
+
+            if (!String.IsNullOrEmpty(Nome))
+            {
+                if (listProjetos.Count > 0)
+                {
+                    var projetosBusca = listProjetos.Where(p => p.Nome.ToUpper().Contains(Nome.ToUpper()));
+                    return View(projetosBusca.ToList());
+                }
+            }
+
+            return View(listProjetos);
+        }
+
+        public async Task<IActionResult> EditStatus(int id)
+        {
+            if (!ValidarUsuario()) return NotFound();
+
+            var projeto = _context.Projetos.Where(i => i.ID == id).FirstOrDefault();
+
+            if (projeto.Aprovado) projeto.Aprovado = false;
+            else projeto.Aprovado = true;
+
+            _context.Projetos.Update(projeto);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(IndexADM));
+        }
+
+        private bool ValidarUsuario()
+        {
+            if (int.Parse(User.Claims.ElementAt(1).Value) == 3) return true;
+
+            return false;
         }
     }
 }

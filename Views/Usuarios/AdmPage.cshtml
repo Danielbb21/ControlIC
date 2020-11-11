@@ -1,0 +1,22 @@
+﻿@model ControlIC.Models.Usuario
+
+@{
+    ViewData["Title"] = "Configurar";
+}
+
+<h1>Configurar</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <a asp-action="Index" asp-controller="Cursos">Cursos</a>
+        <hr />
+        <a asp-action="IndexADM" asp-controller="Projetos">Projetos</a>
+        <hr />
+        <a asp-action="Index" asp-controller="Usuarios">Usuarios</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

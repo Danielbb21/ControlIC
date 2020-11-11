@@ -22,6 +22,8 @@ namespace ControlIC.Controllers
         // GET: Cursos
         public async Task<IActionResult> Index()
         {
+            if (!ValidarUsuario()) return NotFound();
+
             return View(await _context.Cursos.ToListAsync());
         }
 
@@ -32,6 +34,8 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
+
+            if (!ValidarUsuario()) return NotFound();
 
             var curso = await _context.Cursos
                 .FirstOrDefaultAsync(m => m.ID == id);
@@ -46,6 +50,7 @@ namespace ControlIC.Controllers
         // GET: Cursos/Create
         public IActionResult Create()
         {
+            if (!ValidarUsuario()) return NotFound();
             return View();
         }
 
@@ -72,6 +77,8 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
+
+            if (!ValidarUsuario()) return NotFound();
 
             var curso = await _context.Cursos.FindAsync(id);
             if (curso == null)
@@ -124,6 +131,8 @@ namespace ControlIC.Controllers
                 return NotFound();
             }
 
+            if (!ValidarUsuario()) return NotFound();
+
             var curso = await _context.Cursos
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (curso == null)
@@ -148,6 +157,13 @@ namespace ControlIC.Controllers
         private bool CursoExists(int id)
         {
             return _context.Cursos.Any(e => e.ID == id);
+        }
+
+        private bool ValidarUsuario() 
+        {
+            if (int.Parse(User.Claims.ElementAt(1).Value) == 3) return true;
+
+            return false;
         }
     }
 }

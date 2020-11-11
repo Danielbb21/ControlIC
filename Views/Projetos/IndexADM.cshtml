@@ -1,0 +1,129 @@
+﻿@model IEnumerable<ControlIC.Models.Projeto>
+
+@{
+    ViewData["Title"] = "Configurar Projetos";
+}
+
+
+<style>
+    .btnProjeto {
+        padding: 5px;
+        border-radius: 5px;
+        border-width: 1px;
+    }
+
+    td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 150px;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-controller="Projetos" asp-action="ExplorarProjetos" method="get">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="control-label">Pesquisar</label>
+                <input type="text" class="form-control" name="Nome">
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-group">
+                <label class="control-label" style="color:white;">Botão</label>
+                <input type="submit" value="OK" class="btn btn-primary form-control" />
+            </div>
+        </div>
+    </div>
+</form>
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="text-center">
+                Icone
+            </th>
+            <th class="text-center">
+                Nome
+            </th>
+            <th class="text-center">
+                Descrição
+            </th>
+            <th class="text-center">
+                Campo de pesquisa
+            </th>
+            <th class="text-center">
+                Status
+            </th>
+            <th class="text-center">
+                Autorização
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.ToList().Count > 0)
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-center">
+                        @{
+                            string imreBase64Data = Convert.ToBase64String(item.ImgProjeto);
+                            string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+                        }
+                        <img src="@imgDataURL" style="border-style:solid; border-color:black; border-width:1px; width:50px; height:50px; border-radius:100px" />
+                    </td>
+
+                    <td class="text-center align-middle">@item.Nome</td>
+
+                    <td class="text-center align-middle">@item.Descricao</td>
+
+                    <td class="text-center align-middle">@Html.DisplayFor(modelItem => item.CampoPesquisa.Nome)</td>
+
+                    @{
+                        if (item.Status)
+                        {
+                            <td class="text-success text-center align-middle">Ativo</td>
+                        }
+                        else
+                        {
+                            <td class="text-danger text-center align-middle">Encerrado</td>
+                        }
+
+                        if (!item.Aprovado)
+                        {
+                            <td class="text-success text-center align-middle">
+                                <a asp-action="EditStatus" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ativar</a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="text-success text-center align-middle">
+                                <a asp-action="EditStatus" class="btn-dark btnProjeto" style="background-color: mediumseagreen;" asp-route-id="@item.ID">Desativar</a>
+                            </td>
+                        }
+                    }
+
+                    <td class="align-middle">
+                        <a asp-action="Details" class="btn-dark btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Ver</a>
+                        <a asp-action="Delete" class="btn-danger btnProjeto" style="text-decoration:none;" asp-route-id="@item.ID">Excluir</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center align-middle">
+                    Nenhum projeto encontrado
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

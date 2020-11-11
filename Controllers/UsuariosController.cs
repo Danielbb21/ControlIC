@@ -518,7 +518,10 @@ namespace ControlIC.Controllers {
                                     .ThenInclude(p => p.Projeto)
                                     .ThenInclude(p => p.Usuario)
                                     .FirstOrDefaultAsync(m => m.ID == id);
+                
 
+                if(usuario.TipoUsuario == 3) return RedirectToAction("AdmPage");
+                
                 if (usuario == null)
                 {
                     return NotFound();
@@ -527,6 +530,7 @@ namespace ControlIC.Controllers {
                 if (usuario.ImgUsuario == null)
                 {
                     ViewBag.ImageData = "/Imagens/Placeholder_Perfil.png";
+                    HttpContext.Session.SetString("UserPerfil", "/Imagens/Placeholder_Perfil.png");
                 }
                 else
                 {
@@ -543,11 +547,12 @@ namespace ControlIC.Controllers {
                     ViewBag.Especifico = "Curso";
                     ViewBag.ValorEspecifico = usuario.Curso.Nome;
                 }
-                else
+                else if(usuario.TipoUsuario == 2)
                 {
                     ViewBag.Especifico = "Titulação";
                     ViewBag.ValorEspecifico = usuario.Titulacao.NomeTitulacao;
                 }
+                
 
                 return View(usuario);
             }
@@ -859,32 +864,13 @@ namespace ControlIC.Controllers {
                 return View(usuario);
             }
 
-            // GET: Usuarios/Create
-            public IActionResult Create() {
-                ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome");
-                return View();
-            }
-
-            // POST: Usuarios/Create
-            // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-            // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create([Bind("ID,Nome,Sexo,DataNascimento,Email,Senha,LinkedIn,TipoUsuario,AnoIngresso,ImgUsuario,CursoID")] Usuario usuario) {
-                if (ModelState.IsValid) {
-                    _context.Add(usuario);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                ViewData["CursoID"] = new SelectList(_context.Cursos, "ID", "Nome", usuario.CursoID);
-                return View(usuario);
-            }
-
             // GET: Usuarios/Edit/5
             public async Task<IActionResult> Edit(int? id) {
                 if (id == null) {
                     return NotFound();
                 }
+
+                if (!ValidarUsuario()) return NotFound();
 
                 var usuario = await _context.Usuarios.FindAsync(id);
                 if (usuario == null) {
@@ -929,6 +915,8 @@ namespace ControlIC.Controllers {
                     return NotFound();
                 }
 
+                if (!ValidarUsuario()) return NotFound();
+
                 var usuario = await _context.Usuarios
                     .Include(u => u.Curso)
                     .FirstOrDefaultAsync(m => m.ID == id);
@@ -952,6 +940,20 @@ namespace ControlIC.Controllers {
             private bool UsuarioExists(int id) {
                 return _context.Usuarios.Any(e => e.ID == id);
             }
+
+        public IActionResult AdmPage() 
+        {
+            if (!ValidarUsuario()) return NotFound();
+
+            return View();
+        }
+
+        private bool ValidarUsuario()
+        {
+            if (int.Parse(User.Claims.ElementAt(1).Value) == 3) return true;
+
+            return false;
+        }
 
     }
 }

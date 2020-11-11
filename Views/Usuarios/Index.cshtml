@@ -4,6 +4,15 @@
     ViewData["Title"] = "Index";
 }
 
+<style>
+    td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 150px;
+    }
+</style>
+
 <h1>Index</h1>
 
 <p>
@@ -26,12 +35,6 @@
                 @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Senha)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LinkedIn)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.TipoUsuario)
             </th>
             <th>
@@ -39,6 +42,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Curso)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Titulacao)
             </th>
             <th></th>
         </tr>
@@ -59,24 +65,18 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Senha)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LinkedIn)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.TipoUsuario)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.AnoIngresso)
             </td>
-            
             <td>
                 @Html.DisplayFor(modelItem => item.Curso.Nome)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                @Html.DisplayFor(modelItem => item.Titulacao.NomeTitulacao)
+            </td>
+            <td>
                 <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
             </td>
         </tr>
