@@ -955,5 +955,29 @@ namespace ControlIC.Controllers {
             return false;
         }
 
+        public IActionResult RedeEgo() 
+        {
+            var listUser = _context.Usuarios.ToList();
+            return View(listUser);
+        }
+
+        public IActionResult RedeEgoNucleo(int id) 
+        {
+            var usuario = _context.Usuarios.Where(u => u.ID == id)
+                    .Include(u => u.ProjetoEstudantes)
+                    .ThenInclude(u => u.Usuario)
+                    .Include(u => u.projetoCoorientadores)
+                    .ThenInclude(u => u.Usuario)
+                    .FirstOrDefault();
+
+            if (usuario == null) return NotFound();
+            else if (User.Claims.ElementAt(1).Value != "3") 
+            {
+                if (int.Parse(User.Claims.ElementAt(3).Value) != usuario.ID) return NotFound();
+            }
+
+            return View(usuario);
+        }
+
     }
 }
