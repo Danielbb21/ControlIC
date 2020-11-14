@@ -47,6 +47,10 @@
 
 <h1 style="display:flex; align-items:center">
     <b style="width:90%">Perfil do usuario</b>
+    @if (Model.LinkedIn != null)
+    {
+        <a class="btn btn-warning" style="float:right; margin-top:5px; margin-right:5px" href="@Model.LinkedIn">Linkedin</a>
+    }
     <a class="btn btn-warning" style="float:right; margin-top:5px" asp-action="EditUser">Editar Perfil</a>
 </h1>
 <hr />
@@ -156,8 +160,8 @@
                                     </td>
                                     <td>@i.Projeto.Usuario.Nome</td>
                                     <td>
-                                        <a asp-action="AceitarConvite" asp-controller="Projetos" asp-route-id="@i.ID">Aceitar</a> |
-                                        <a asp-action="RecusarConvite" asp-controller="Projetos" asp-route-id="@i.ID">Recusar</a>
+                                        <a asp-action="AceitarConvite" asp-route-id="@i.ID">Aceitar</a> |
+                                        <a asp-action="RecusarConvite" asp-route-id="@i.ID">Recusar</a>
                                     </td>
                                 </tr>
                             }

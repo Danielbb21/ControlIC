@@ -42,6 +42,7 @@ namespace ControlIC.Models
 
         public virtual List<ProjetoCoorientador> projetoCoorientadores { get; set; }
         public virtual List<ProjetoEstudante> ProjetoEstudantes { get; set; }
+        
 
         [NotMapped]
         [Compare("Senha", ErrorMessage = "As senhas não estão iguais.")]
@@ -51,5 +52,6 @@ namespace ControlIC.Models
 
         [NotMapped]
         public string ImgUrl { get; set; }
+
     }
 }

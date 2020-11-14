@@ -19,8 +19,12 @@
     <div id="JanelaUsuarios" style="width:100%; height:100%">
         @foreach (var usuario in Model)
         {
-            <button asp-action="RedeEgoNucleo" asp-route-id="@usuario.ID" style="width:50px; margin:10px ;height:50px; border-radius:200px; background-color:blue">
-            </button>
+            @if (usuario.TipoUsuario != 3)
+            {
+                <button asp-action="RedeEgoNucleo" asp-route-id="@usuario.ID" style="width:50px; margin:10px ;height:50px; border-radius:200px; background-color:blue">
+                    @usuario.Nome
+                </button>
+            }
         }
     </div>
 </form>

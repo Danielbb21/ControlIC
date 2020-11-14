@@ -1,40 +1,70 @@
-﻿@model ControlIC.Models.Usuario
+﻿@model ControlIC.Grafo.Rede
 
 @{
     ViewData["Title"] = "Personal Network";
+
+    int posicao = 1;
 }
+
+<script>
+
+    function ColetarPosicaoY() {
+        var nucleo = document.getElementById("Nucleo");
+
+        console.log(nucleo.offsetTop);
+        console.log(nucleo.offsetLeft);
+
+        var a = Grafo.Metodo();
+
+        console.log(a);
+
+        return nucleo.offsetTop;
+    };
+
+</script>
 
 <style>
     .vertice {
-        width: 50px;
-        height: 50px;
+        width: @(((200 / Model.Conteudo.Count) + 10).ToString())px;
+        height: @(((200 / Model.Conteudo.Count) + 10).ToString())px;
         border-radius: 200px;
         position: absolute;
         background-color: blue;
     }
+
+    .nucleo{
+        top:50%;
+        left:50%;
+    }
 </style>
 
 <div id="Rede" style="width:100%; height:100%;">
-    <div id="Nucleo" class="vertice"></div>
+
+    <div id="Nucleo" class="vertice nucleo" onclick="ColetarPosicaoY(event)">@Model.Conteudo[0].Usuario.Nome</div>
+    @{Model.Conteudo[0].IsPrinted = true;}
+
+    @foreach (var vertice in Model.Conteudo)
+    {
+        @foreach (var ligacao in vertice.Ligacoes)
+        {
+            @if (ligacao.Entrada.Altura == 0)
+            {
+                ligacao.Saida.X = Math.Round(Math.Cos((2 * Math.PI / vertice.Ligacoes.Count * posicao)));
+                ligacao.Saida.Y = Math.Round(Math.Sin((2 * Math.PI / vertice.Ligacoes.Count * posicao)));
+                posicao++;
+
+                ligacao.Saida.X = ligacao.Saida.X * 100;
+                ligacao.Saida.Y = ligacao.Saida.Y * 100;
+            }
+            else
+            {
+
+            }
+            @if (!ligacao.Saida.IsPrinted)
+            {
+                ligacao.Saida.IsPrinted = true;
+                <div class="vertice" style="top:@ligacao.Saida.Y.ToString()px ;left:@ligacao.Saida.X.ToString()px">@ligacao.Saida.Usuario.Nome</div>
+            }
+        }
+    }
 </div>
-
-<script>
-
-    var GerarLigacoes = function (event) {
-        var janela = document.getElementById("JanelaUsuarios");
-        janela.style.display = "none";
-
-        var nucleo = document.createElement("div");
-        nucleo.className = "vertice";
-
-        nucleo.style.top = "50%";
-        nucleo.style.left = "50%";
-
-        var Rede = document.getElementById("Rede");
-        Rede.appendChild(nucleo);
-
-        console.log(nucleo.offsetTop);
-        console.log(nucleo.offsetLeft);
-    };
-
-</script>

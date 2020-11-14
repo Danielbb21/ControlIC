@@ -24,6 +24,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Policy;
 using System.Net.Mail;
 using System.Net;
+using ControlIC.Grafo;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Identity;
@@ -568,7 +569,7 @@ namespace ControlIC.Controllers {
             public async Task<IActionResult> Logout()
             {
                 await HttpContext.SignOutAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction("LoginPage");
             }
 
         //---------------------------------------------------------------------------------------------------//
@@ -976,7 +977,11 @@ namespace ControlIC.Controllers {
                 if (int.Parse(User.Claims.ElementAt(3).Value) != usuario.ID) return NotFound();
             }
 
-            return View(usuario);
+            Rede rede = new Rede(_context);
+
+            rede.ConstruirGrafo(usuario);
+
+            return View(rede);
         }
 
     }
