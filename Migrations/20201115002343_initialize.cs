@@ -4,7 +4,7 @@ using Oracle.EntityFrameworkCore.Metadata;
 
 namespace ControlIC.Migrations
 {
-    public partial class inicio : Migration
+    public partial class initialize : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -50,23 +50,6 @@ namespace ControlIC.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AtividadeResponsaveis",
-                columns: table => new
-                {
-                    ID = table.Column<int>(nullable: false)
-                        .Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn),
-                    DataEntrega = table.Column<DateTime>(nullable: true),
-                    Arquivo = table.Column<byte[]>(type: "BLOB", nullable: true),
-                    Entregue = table.Column<bool>(nullable: false),
-                    UsuarioID = table.Column<int>(nullable: false),
-                    AtividadeID = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AtividadeResponsaveis", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Usuarios",
                 columns: table => new
                 {
@@ -82,8 +65,7 @@ namespace ControlIC.Migrations
                     TipoUsuario = table.Column<int>(nullable: false),
                     AnoIngresso = table.Column<int>(nullable: true),
                     CursoID = table.Column<int>(nullable: true),
-                    TitulacaoID = table.Column<int>(nullable: true),
-                    AtividadeID = table.Column<int>(nullable: true)
+                    TitulacaoID = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -266,6 +248,37 @@ namespace ControlIC.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "AtividadeResponsaveis",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn),
+                    DataEntrega = table.Column<DateTime>(nullable: true),
+                    Arquivo = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    Entregue = table.Column<bool>(nullable: false),
+                    TipoArquivo = table.Column<string>(nullable: true),
+                    NomeArquivo = table.Column<string>(nullable: true),
+                    UsuarioID = table.Column<int>(nullable: false),
+                    AtividadeID = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AtividadeResponsaveis", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_AtividadeResponsaveis_Atividades_AtividadeID",
+                        column: x => x.AtividadeID,
+                        principalTable: "Atividades",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AtividadeResponsaveis_Usuarios_UsuarioID",
+                        column: x => x.UsuarioID,
+                        principalTable: "Usuarios",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AtividadeResponsaveis_AtividadeID",
                 table: "AtividadeResponsaveis",
@@ -327,11 +340,6 @@ namespace ControlIC.Migrations
                 column: "ProjetoID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_AtividadeID",
-                table: "Usuarios",
-                column: "AtividadeID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_CursoID",
                 table: "Usuarios",
                 column: "CursoID");
@@ -340,38 +348,10 @@ namespace ControlIC.Migrations
                 name: "IX_Usuarios_TitulacaoID",
                 table: "Usuarios",
                 column: "TitulacaoID");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_AtividadeResponsaveis_Atividades_AtividadeID",
-                table: "AtividadeResponsaveis",
-                column: "AtividadeID",
-                principalTable: "Atividades",
-                principalColumn: "ID",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_AtividadeResponsaveis_Usuarios_UsuarioID",
-                table: "AtividadeResponsaveis",
-                column: "UsuarioID",
-                principalTable: "Usuarios",
-                principalColumn: "ID",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Usuarios_Atividades_AtividadeID",
-                table: "Usuarios",
-                column: "AtividadeID",
-                principalTable: "Atividades",
-                principalColumn: "ID",
-                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Usuarios_Atividades_AtividadeID",
-                table: "Usuarios");
-
             migrationBuilder.DropTable(
                 name: "AtividadeResponsaveis");
 

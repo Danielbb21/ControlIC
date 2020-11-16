@@ -70,6 +70,12 @@ namespace ControlIC.Migrations
                     b.Property<bool>("Entregue")
                         .HasColumnType("NUMBER(1)");
 
+                    b.Property<string>("NomeArquivo")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("TipoArquivo")
+                        .HasColumnType("NVARCHAR2(2000)");
+
                     b.Property<int>("UsuarioID")
                         .HasColumnType("NUMBER(10)");
 
@@ -301,9 +307,6 @@ namespace ControlIC.Migrations
                     b.Property<int?>("AnoIngresso")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<int?>("AtividadeID")
-                        .HasColumnType("NUMBER(10)");
-
                     b.Property<int?>("CursoID")
                         .HasColumnType("NUMBER(10)");
 
@@ -340,8 +343,6 @@ namespace ControlIC.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("AtividadeID");
-
                     b.HasIndex("CursoID");
 
                     b.HasIndex("TitulacaoID");
@@ -361,7 +362,7 @@ namespace ControlIC.Migrations
             modelBuilder.Entity("ControlIC.Models.AtividadeResponsavel", b =>
                 {
                     b.HasOne("ControlIC.Models.Atividade", "Atividade")
-                        .WithMany()
+                        .WithMany("Participantes")
                         .HasForeignKey("AtividadeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -444,10 +445,6 @@ namespace ControlIC.Migrations
 
             modelBuilder.Entity("ControlIC.Models.Usuario", b =>
                 {
-                    b.HasOne("ControlIC.Models.Atividade", null)
-                        .WithMany("Participantes")
-                        .HasForeignKey("AtividadeID");
-
                     b.HasOne("ControlIC.Models.Curso", "Curso")
                         .WithMany("Usuarios")
                         .HasForeignKey("CursoID");

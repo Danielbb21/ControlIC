@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControlIC.Data;
 using ControlIC.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlIC.Controllers
 {
@@ -20,6 +21,7 @@ namespace ControlIC.Controllers
         }
 
         // GET: Cursos
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             if (!ValidarUsuario()) return NotFound();
@@ -28,6 +30,7 @@ namespace ControlIC.Controllers
         }
 
         // GET: Cursos/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,6 +51,7 @@ namespace ControlIC.Controllers
         }
 
         // GET: Cursos/Create
+        //[Authorize]
         public IActionResult Create()
         {
             if (!ValidarUsuario()) return NotFound();
@@ -59,6 +63,7 @@ namespace ControlIC.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //[Authorize]
         public async Task<IActionResult> Create([Bind("ID,Nome")] Curso curso)
         {
             if (ModelState.IsValid)
@@ -71,6 +76,7 @@ namespace ControlIC.Controllers
         }
 
         // GET: Cursos/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -93,6 +99,7 @@ namespace ControlIC.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Nome")] Curso curso)
         {
             if (id != curso.ID)
@@ -124,6 +131,7 @@ namespace ControlIC.Controllers
         }
 
         // GET: Cursos/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -146,6 +154,7 @@ namespace ControlIC.Controllers
         // POST: Cursos/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var curso = await _context.Cursos.FindAsync(id);
@@ -154,15 +163,17 @@ namespace ControlIC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         private bool CursoExists(int id)
         {
             return _context.Cursos.Any(e => e.ID == id);
         }
 
+        [Authorize]
         private bool ValidarUsuario() 
         {
-            if (int.Parse(User.Claims.ElementAt(1).Value) == 3) return true;
-
+            //if (int.Parse(User.Claims.ElementAt(1).Value) == 3) return true;
+            return true;
             return false;
         }
     }
