@@ -41,6 +41,10 @@ namespace ControlIC.Grafo
     }
     public class Rede
     {
+        public int AlturaMaxima { get; set; }
+        public int[][] MatrizEgo { get; set; }
+        private int TamanhoMatriz;
+
         private readonly ControlICContext _context;
 
         public Rede(ControlICContext context)
@@ -57,10 +61,19 @@ namespace ControlIC.Grafo
             Nucleo.Altura = 0;
             Nucleo.Usuario = UsuarioInicial;
 
+            AlturaMaxima = 0;
+
             this.Conteudo.Add(Nucleo);
 
             if (UsuarioInicial.TipoUsuario == 1) BuscaAlturaEstudante(Nucleo, 1);
             else BuscaAlturaProfessor(Nucleo, 1);
+
+            foreach(var vertice in Conteudo) 
+            {
+                if (AlturaMaxima < vertice.Altura) AlturaMaxima = vertice.Altura;
+            }
+
+            DefinirMatriz();
         }
         private void BuscaAlturaEstudante(Vertice Predecessor, int altura)
         {
@@ -329,16 +342,6 @@ namespace ControlIC.Grafo
             }
         }
 
-        public void CalcularPosicoes() 
-        {
-            int AlturaMaxima = 0;
-
-            foreach(var vertice in Conteudo) 
-            {
-                if (vertice.Altura > AlturaMaxima) AlturaMaxima = vertice.Altura;
-            }
-        }
-
         private List<ProjetoEstudante> ProjetosEnvolvidosEstudante(Usuario usuario) 
         {
             var ProjetosEnvolvidos = _context.ProjetoEstudantes.Where(p => p.UsuarioID == usuario.ID)
@@ -368,6 +371,167 @@ namespace ControlIC.Grafo
                                                       .Include(p => p.ProjetoEstudantes).ToList();
 
             return ProjetosEnvolvidos;
+        }
+
+
+        private void DefinirMatriz() 
+        {
+            //A MATRIZ TEM QUE ESTAR NESSE FORMATO: int[3 + 2*tamanhoAdicional + 2*AlturaMaxima][]
+
+            int tamanhoAdicional = 0;
+            int[] alturas = new int[AlturaMaxima];
+            int quantidadeLigacoes;
+
+            alturas[1] = Conteudo.Count(v => v.Altura == 1);
+            while (alturas[1] / (((5 + 2 * tamanhoAdicional) ^ 2) - 10)  > 1) 
+            {
+                tamanhoAdicional++;
+            }
+
+            for(int i = 2; i < Conteudo.Count(); i++) 
+            {
+                quantidadeLigacoes = Conteudo.ElementAt(i).Ligacoes.Count();
+                while (quantidadeLigacoes / (((5 + 2 * tamanhoAdicional) * (5 + 2 * tamanhoAdicional)/2) - 6) > 1)
+                {
+                    tamanhoAdicional++;
+                }
+            }
+
+            this.TamanhoMatriz = 3 + 2 * tamanhoAdicional + 4 * AlturaMaxima;
+            this.MatrizEgo = new int[TamanhoMatriz][];
+
+            PreencherMatriz();
+        }
+
+        private void PreencherMatriz() 
+        {
+            int contX = 0, contY = 0, tamanhoAdicional = 0;
+            int anguloX = 1, anguloY = 1;
+            int delimitacaoX = 5, delimitacaoY = 3;
+
+            Conteudo.ElementAt(0).X = ((TamanhoMatriz - 1) / 2);
+            Conteudo.ElementAt(0).Y = ((TamanhoMatriz - 1) / 2);
+            Conteudo.ElementAt(0).IsPrinted = true;
+            
+            //POSIÇÃO PARA O NUCLEO E LIGACOES
+            foreach (var ligacao in Conteudo.ElementAt(0).Ligacoes)
+            {
+                ligacao.Saida.X = ligacao.Entrada.X - 2 - 2*tamanhoAdicional + contX;
+                ligacao.Saida.Y = ligacao.Entrada.Y - 2 - 2*tamanhoAdicional + contY;
+
+                if(contY == 0 || contY == 4) 
+                {
+                    contX++;
+                    if (contX == 5) 
+                    {
+                        contX = 0;
+                        contY++;
+                    }
+                }
+                else 
+                {
+                    if (contX == 0) contX = 4;
+                    else 
+                    {
+                        contX = 0;
+                        contY++;
+                    }
+                }
+
+                if (contX == 5 + 2 * tamanhoAdicional && contY == 5 + 2 * tamanhoAdicional) tamanhoAdicional++;
+
+                ligacao.Saida.IsPrinted = true;
+            }
+
+            //POSICAO PARA QUALQUER OUTRO CASO
+            foreach (var vertice in Conteudo.Skip(1)) 
+            {
+                //DEFINE AS VARIAVEIS PRO SEUS VALORES PADRÕES
+                anguloX = 1;
+                anguloY = 1;
+                contX = 0;
+                contY = 0;
+                tamanhoAdicional = 0;
+
+                //COMECA A PASSAR POR TODAS AS LIGACOES DO VERTICE
+                foreach (var ligacao in vertice.Ligacoes) 
+                {
+                    //SO ENTRA SE ELA NAO FOI DEFINIDA AINDA
+                    if (!ligacao.Saida.IsPrinted) 
+                    {
+                        //SE O ANGULO PASSAR DA METADE DA MATRIZ O ANGULO DE Y É NEGATIVO    
+                        if (ligacao.Entrada.X > (TamanhoMatriz - 1) / 2)
+                        {
+                            anguloX = -1;
+                            delimitacaoY = 5;
+                            delimitacaoX = 3;
+                        }
+                        //SE FOR MENOR QUE A METADAE O ANGULO DE Y É POSITIVO
+                        else if (ligacao.Entrada.X < (TamanhoMatriz - 1) / 2)
+                        {
+                            anguloX = 1;
+                            delimitacaoY = 5;
+                            delimitacaoX = 3;
+                        }
+                        //SE X FOR NO CENTRO O ARCO IRA MUDAR PRA APONTAR PARA CIMA OU PARA BAIXO
+                        else
+                        {
+                            delimitacaoY = 3;
+                            delimitacaoX = 5;
+
+                            //SE PASSAR DA METADE O ANGULO É NEGATIVO
+                            if (ligacao.Entrada.Y >= (TamanhoMatriz - 1) / 2)
+                            {
+                                anguloY = -1;
+                            }
+                        }
+
+                        ligacao.Saida.X = ligacao.Entrada.X - (2 * anguloX) - 2 * tamanhoAdicional + contX * anguloX;
+                        ligacao.Saida.Y = ligacao.Entrada.Y - (2 * anguloY) - 2 * tamanhoAdicional + contY * anguloY;
+
+                        if (contY == 0 || contY == delimitacaoY - 1)
+                        {
+                            contX++;
+                            if (contX == delimitacaoX)
+                            {
+                                contX = 0;
+                                contY++;
+                            }
+                        }
+                        else
+                        {
+                            contX = 0;
+                            contY++;
+                        }
+
+                        if (contX == 5 + 2 * tamanhoAdicional && contY == 5 + 2 * tamanhoAdicional) tamanhoAdicional++;
+                        ligacao.Saida.IsPrinted = true;
+
+                        foreach(var v in Conteudo) 
+                        {
+                            if(v != ligacao.Saida && v.X == ligacao.Saida.X && v.Y == ligacao.Saida.Y) 
+                            {
+                                AbrirEspaco(ligacao.Saida.X + 1, ligacao.Saida.Y + 1);
+                                ligacao.Saida.X += 1;
+                                ligacao.Saida.Y += 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        }
+        
+        private void AbrirEspaco(double referenciaX, double referenciaY) 
+        {
+            foreach(var vertice in Conteudo) 
+            {
+                if (vertice.X >= referenciaX) vertice.X += 1;
+
+                if (vertice.Y >= referenciaY) vertice.Y += 1;
+
+            }
         }
     }
 
