@@ -378,22 +378,27 @@ namespace ControlIC.Grafo
         {
             //A MATRIZ TEM QUE ESTAR NESSE FORMATO: int[3 + 2*tamanhoAdicional + 2*AlturaMaxima][]
 
+            //FAZER UM CHEQUE PROS QUE ESTÃO VAZIOS
+
             int tamanhoAdicional = 0;
             int[] alturas = new int[AlturaMaxima];
             int quantidadeLigacoes;
 
-            alturas[1] = Conteudo.Count(v => v.Altura == 1);
-            while (alturas[1] / (((5 + 2 * tamanhoAdicional) ^ 2) - 10)  > 1) 
+            if(Conteudo.Count() > 1) 
             {
-                tamanhoAdicional++;
-            }
-
-            for(int i = 2; i < Conteudo.Count(); i++) 
-            {
-                quantidadeLigacoes = Conteudo.ElementAt(i).Ligacoes.Count();
-                while (quantidadeLigacoes / (((5 + 2 * tamanhoAdicional) * (5 + 2 * tamanhoAdicional)/2) - 6) > 1)
+                alturas[1] = Conteudo.Count(v => v.Altura == 1);
+                while (alturas[1] / (((5 + 2 * tamanhoAdicional) ^ 2) - 10) > 1)
                 {
                     tamanhoAdicional++;
+                }
+
+                foreach (var vertice in Conteudo.Skip(1))
+                {
+                    quantidadeLigacoes = vertice.Ligacoes.Count();
+                    while (quantidadeLigacoes / (((5 + 2 * tamanhoAdicional) * (5 + 2 * tamanhoAdicional) / 2) - 6) > 1)
+                    {
+                        tamanhoAdicional++;
+                    }
                 }
             }
 

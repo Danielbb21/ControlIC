@@ -31,6 +31,8 @@
         height:500px;
         overflow: auto;
         position: relative;
+        margin-top:10%;
+        margin-left:10%;
     }
 
     .vertice {
@@ -47,20 +49,30 @@
         top:10px;
         left:10px;
     }
+
+    .Grafo{
+        position:absolute;
+        width:@((Model.Conteudo.ElementAt(0).X*2*40).ToString())px;
+        height:@((Model.Conteudo.ElementAt(0).Y*2*40).ToString())px;
+        left:50%;
+        transform:translateX(-50%);
+    }
 </style>
 
 <div class="rede">
-    <svg style="position:relative; padding:10px; width:-webkit-fill-available; height:-webkit-fill-available">
+    <div style="position:absolute; width:@((Model.Conteudo.ElementAt(0).X*2*40).ToString())px; height:@((Model.Conteudo.ElementAt(0).Y*2*40).ToString())px">
+        <svg style="position:relative; padding:10px; width:-webkit-fill-available; height:-webkit-fill-available">/
+            @foreach (var vertice in Model.Conteudo)
+            {
+                foreach (var ligacao in vertice.Ligacoes)
+                {
+                    <line style="stroke:black; position:absolute" x1="@(ligacao.Entrada.X*40)" x2="@(ligacao.Saida.X*40)" y1="@(ligacao.Entrada.Y*40)" y2="@(ligacao.Saida.Y*40)"></line>
+                }
+            }
+        </svg>
         @foreach (var vertice in Model.Conteudo)
         {
-            foreach (var ligacao in vertice.Ligacoes)
-            {
-                <line style="stroke:black; position:absolute" x1="@(ligacao.Entrada.X*40)" x2="@(ligacao.Saida.X*40)" y1="@(ligacao.Entrada.Y*40)" y2="@(ligacao.Saida.Y*40)"></line>
-            }
+            <div class="vertice" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
         }
-    </svg>
-    @foreach (var vertice in Model.Conteudo)
-    {
-        <div class="vertice" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
-    }
+    </div>
 </div>

@@ -700,7 +700,7 @@ namespace ControlIC.Controllers {
                 {
                     string token = Guid.NewGuid().ToString();
 
-                    MailMessage m = new MailMessage(new MailAddress("controlicplus@outlook.com", titulo), new MailAddress(email));
+                    MailMessage m = new MailMessage(new MailAddress("controlicsenai@gmail.com", titulo), new MailAddress(email));
                     m.Subject = "Confirmação de Email";
                     m.Body = string.Format(@"Querido usuário,
                                             <br/> 
@@ -713,11 +713,11 @@ namespace ControlIC.Controllers {
                     TempData["token"] = token;
 
                     m.IsBodyHtml = true;
-                    SmtpClient smtp = new SmtpClient("smtp-mail.outlook.com", 587);
+                    SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
                     smtp.UseDefaultCredentials = false;
-                    smtp.Credentials = new NetworkCredential("controlicplus@outlook.com", "Kw50dj22");
+                    smtp.Credentials = new NetworkCredential("controlicsenai@gmail.com", "controlic4");
                     smtp.EnableSsl = true;
-                    //smtp.Send(m);
+                    smtp.Send(m);
                 }
                 catch(Exception ex)
                 {
