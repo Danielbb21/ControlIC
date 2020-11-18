@@ -347,10 +347,10 @@ namespace ControlIC.Controllers
         /// [GET: EntregarAtividade] Página de entregar atividade
         /// </summary>
         [Authorize]
-        public async Task<IActionResult> EntregarAtividade(int? idAtividade, int? idProjetoUrl)
+        public async Task<IActionResult> EntregarAtividade(int? id)
         {
             //Verifica os parametros
-            if (idAtividade == null || idProjetoUrl == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -361,34 +361,20 @@ namespace ControlIC.Controllers
             if (tipoUser != 1) return NotFound();
 
             //Busca a atividade de acordo com o id da atividade da URL
-            var atividade = await _context.Atividades
-                  .Include(a => a.Projeto)
-                  .Include(a => a.Participantes)
+            var atividadeEntrega = await _context.AtividadeResponsaveis
+                  .Include(a => a.Atividade)
+                  .ThenInclude(a => a.Participantes)
                   .ThenInclude(A => A.Usuario)
-                  .FirstOrDefaultAsync(m => m.ID == idAtividade);
+                  .FirstOrDefaultAsync(m => m.ID == id);
 
-            //Verifica se a atividade existe
-            if (atividade == null)
-            {
-                return NotFound();
-            }
-
-            if(atividade.ProjetoID != idProjetoUrl) return NotFound();
-
-            
-            //Verifica se o usuario é responsavel
-            var atividadeEntrega = _context.AtividadeResponsaveis.Include(p => p.Atividade).Where(p => p.UsuarioID == idUsuarioLogado && p.Atividade.ID == atividade.ID).FirstOrDefault();
-            if (atividadeEntrega == null)
+            //Verifica se a atividade existe e se o usuario é responsavel
+            if (atividadeEntrega == null || atividadeEntrega.UsuarioID != idUsuarioLogado)
             {
                 return NotFound();
             }
 
             //converter array de bytes em IFormFile
-            if(atividadeEntrega.Arquivo != null)
-            {
-                var stream = new MemoryStream(atividadeEntrega.Arquivo);
-                atividadeEntrega.ArquivoFormato = new FormFile(stream, 0, atividadeEntrega.Arquivo.Length, "name", "fileName");
-            }
+
             ViewData["idProjeto"] = atividadeEntrega.Atividade.ProjetoID;
             return View(atividadeEntrega);
         }
@@ -442,7 +428,17 @@ namespace ControlIC.Controllers
                     atividadeResponsavel.DataEntrega = null;
                     atividadeResponsavel.Entregue = false;
                     atividadeResponsavel.Atividade = atv;
-                    ViewBag.Erro = "Um erro inesperado ocorreu tente novamete";
+                    ViewBag.Erro = "Um erro inesperado ocorreu tente novamente.";
+                    return View(atividadeResponsavel);
+                }
+                catch(Exception e)
+                {
+                    atividadeResponsavel.TipoArquivo = null;
+                    atividadeResponsavel.NomeArquivo = null;
+                    atividadeResponsavel.DataEntrega = null;
+                    atividadeResponsavel.Entregue = false;
+                    atividadeResponsavel.Atividade = atv;
+                    ViewBag.Erro = "Formato de arquivo incompatível.";
                     return View(atividadeResponsavel);
                 }
                 return RedirectToAction(nameof(Index), new { id = atv.ProjetoID });

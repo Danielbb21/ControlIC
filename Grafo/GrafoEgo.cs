@@ -386,8 +386,8 @@ namespace ControlIC.Grafo
 
             if(Conteudo.Count() > 1) 
             {
-                alturas[1] = Conteudo.Count(v => v.Altura == 1);
-                while (alturas[1] / (((5 + 2 * tamanhoAdicional) ^ 2) - 10) > 1)
+                alturas[0] = Conteudo.Count(v => v.Altura == 1);
+                while (alturas[0] / (((5 + 2 * tamanhoAdicional) ^ 2) - 10) > 1)
                 {
                     tamanhoAdicional++;
                 }

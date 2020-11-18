@@ -367,7 +367,7 @@ namespace ControlIC.Controllers
                 }
                 else if (int.Parse(User.Claims.ElementAt(1).Value) == 2)
                 {
-                    var usuario = projeto.projetoCoorientadores.Where(u => u.ID == userId).FirstOrDefault();
+                    var usuario = projeto.projetoCoorientadores.Where(u => u.UsuarioID == userId).FirstOrDefault();
                     if (usuario == null) return NotFound();
                 }
             }
