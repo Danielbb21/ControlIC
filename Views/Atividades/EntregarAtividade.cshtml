@@ -9,25 +9,34 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="EntregarAtividade" enctype="multipart/form-data">
-            <input type="text" asp-for="@Model.ID" class="text-danger"/>
-            <input type="hidden" asp-for="DataEntrega"/>
+            <input type="text" asp-for="ID" />
+            <input type="hidden" asp-for="DataEntrega" />
             <input type="hidden" asp-for="Entregue" />
-            <input type="text" asp-for="AtividadeID" class="text-success"/>
+            <input type="text" asp-for="AtividadeID" />
             <input type="hidden" asp-for="Atividade.ProjetoID" />
-            <input type="text" asp-for="UsuarioID" class="text-dark"/>
+            <input type="text" asp-for="UsuarioID" />
             <input type="hidden" asp-for="Atividade.Titulo" />
             <input type="hidden" asp-for="Atividade.Texto" />
             <input type="hidden" asp-for="Atividade.DataPrevista" />
 
+            @{
+                if (ViewBag.Erro != null)
+                {
+                    <div class="form-group">
+                        <label class="text-danger control-label">@ViewBag.Erro</label>
+                    </div>
+                }
+            }
+
             <div class="form-group">
                 <label class="control-label">
                     <strong>Título:</strong> @Model.Atividade.Titulo
-</label>
+                </label>
             </div>
             <div class="form-group">
                 <label class="control-label">
                     <strong>Texto:</strong> @Model.Atividade.Texto
-</label>
+                </label>
             </div>
             <div class="form-group">
                 <label class="control-label">
@@ -58,7 +67,7 @@
                                 }
                                 else
                                 {
-                                    <label class="text-success">Entregue com atraso</label>
+                                    <label class="text-primary">Entregue com atraso</label>
                                 }
                             }
                             else
@@ -77,13 +86,10 @@
 
             <div class="form-group">
                 <input type="submit" value="Enviar" class="btn btn-success" />
+                <a class="btn btn-primary" asp-action="Index" asp-route-id="@ViewData["idProjeto"]">Voltar</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a class="btn btn-primary" asp-action="Index" asp-route-id="@Model.Atividade.ProjetoID">Voltar</a>
 </div>
 
 @section Scripts {

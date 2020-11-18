@@ -343,25 +343,118 @@ namespace ControlIC.Controllers
             return View(atividade);
         }
 
+        /// <summary>
+        /// [GET: EntregarAtividade] Página de entregar atividade
+        /// </summary>
         [Authorize]
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> EntregarAtividade(int? idAtividade, int? idProjetoUrl)
         {
-            int? idProjetoUrl = id;
+            //Verifica os parametros
+            if (idAtividade == null || idProjetoUrl == null)
+            {
+                return NotFound();
+            }
+            int idUsuarioLogado = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
+            int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
 
-            if (idProjetoUrl == null)
+            //Verifica se o usuario é aluno
+            if (tipoUser != 1) return NotFound();
+
+            //Busca a atividade de acordo com o id da atividade da URL
+            var atividade = await _context.Atividades
+                  .Include(a => a.Projeto)
+                  .Include(a => a.Participantes)
+                  .ThenInclude(A => A.Usuario)
+                  .FirstOrDefaultAsync(m => m.ID == idAtividade);
+
+            //Verifica se a atividade existe
+            if (atividade == null)
             {
                 return NotFound();
             }
 
-            var controlICContext = _context.Atividades.Include(a => a.Projeto).Where(a => a.ProjetoID == id);
-            ViewData["ProjetoID"] = idProjetoUrl;
+            if(atividade.ProjetoID != idProjetoUrl) return NotFound();
 
-            var projeto = _context.Projetos.Find(idProjetoUrl);
-            if (projeto == null) return NotFound();
+            
+            //Verifica se o usuario é responsavel
+            var atividadeEntrega = _context.AtividadeResponsaveis.Include(p => p.Atividade).Where(p => p.UsuarioID == idUsuarioLogado && p.Atividade.ID == atividade.ID).FirstOrDefault();
+            if (atividadeEntrega == null)
+            {
+                return NotFound();
+            }
 
-            return View(await controlICContext.ToListAsync());
+            //converter array de bytes em IFormFile
+            if(atividadeEntrega.Arquivo != null)
+            {
+                var stream = new MemoryStream(atividadeEntrega.Arquivo);
+                atividadeEntrega.ArquivoFormato = new FormFile(stream, 0, atividadeEntrega.Arquivo.Length, "name", "fileName");
+            }
+            ViewData["idProjeto"] = atividadeEntrega.Atividade.ProjetoID;
+            return View(atividadeEntrega);
         }
 
+        /// <summary>
+        /// [POST: EntregarAtividade] Página de entregar atividade 
+        /// </summary>
+        [Authorize]
+        [HttpPost("EntregarAtividade")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EntregarAtividade(int idAtividade, int idProjetoUr, AtividadeResponsavel atividadeResponsavel)
+        {
+            IFormFile imagemEnviada = atividadeResponsavel.ArquivoFormato;
+            
+
+            if (imagemEnviada != null)
+            {
+                MemoryStream ms = new MemoryStream();
+                try
+                {
+                    await imagemEnviada.OpenReadStream().CopyToAsync(ms);
+                    atividadeResponsavel.Arquivo = ms.ToArray();
+                }
+                catch
+                {
+                    ModelState.AddModelError("ArquivoFormato", "Insira um arquivo válido");
+                }
+            }
+            else ModelState.AddModelError("ArquivoFormato", "Insira um arquivo para enviar");
+
+            ViewBag.Erro = null;
+            ViewData["idProjeto"] = atividadeResponsavel.Atividade.ProjetoID;
+            Atividade atv = atividadeResponsavel.Atividade;
+            if (ModelState.IsValid)
+            {
+                IFormFile arqEnviado = atividadeResponsavel.ArquivoFormato;
+                try
+                {
+                    atividadeResponsavel.TipoArquivo = arqEnviado.ContentType;
+                    atividadeResponsavel.NomeArquivo = arqEnviado.FileName;
+                    atividadeResponsavel.DataEntrega = DateTime.Now;
+                    atividadeResponsavel.Entregue = true;
+                    atividadeResponsavel.Atividade = null;
+                    _context.AtividadeResponsaveis.Update(atividadeResponsavel);
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    atividadeResponsavel.TipoArquivo = null;
+                    atividadeResponsavel.NomeArquivo = null;
+                    atividadeResponsavel.DataEntrega = null;
+                    atividadeResponsavel.Entregue = false;
+                    atividadeResponsavel.Atividade = atv;
+                    ViewBag.Erro = "Um erro inesperado ocorreu tente novamete";
+                    return View(atividadeResponsavel);
+                }
+                return RedirectToAction(nameof(Index), new { id = atv.ProjetoID });
+                
+            }
+            return View(atividadeResponsavel);
+        }
+
+        /// <summary>
+        /// [GET: Delete] Pagina de exclusão de atividade
+        /// </summary>
+        /// <param name="id">id de atividade</param>
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -386,104 +479,10 @@ namespace ControlIC.Controllers
             return View(atividade);
         }
 
-        //GET Entregar atividade
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> EntregarAtividade(int? idAtividade, int? idProjetoUrl)
-        {
-            //Verifica os parametros
-            if (idAtividade == null || idProjetoUrl == null)
-            {
-                return NotFound();
-            }
-
-            //Busca a atividade de acordo com o id da atividade da URL
-            var atividade = await _context.Atividades
-                  .Include(a => a.Projeto)
-                  .Include(a => a.Participantes)
-                  .ThenInclude(A => A.Usuario)
-                  .FirstOrDefaultAsync(m => m.ID == idAtividade);
-
-            //Verifica se a atividade existe
-            if (atividade == null)
-            {
-                return NotFound();
-            }
-
-            if(atividade.ProjetoID != idProjetoUrl) return NotFound();
-
-            int idUsuarioLogado = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
-            int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
-
-            //Verifica se o usuario é aluno
-            if (tipoUser != 1) return NotFound();
-
-            //Verifica se o usuario é responsavel
-            var atividadeEntrega = _context.AtividadeResponsaveis.Include(p => p.Atividade).Where(p => p.UsuarioID == idUsuarioLogado && p.Atividade.ID == atividade.ID).FirstOrDefault();
-            if (atividadeEntrega == null)
-            {
-                return NotFound();
-            }
-
-            //converter array de bytes em IFormFile
-            if(atividadeEntrega.Arquivo != null)
-            {
-                var stream = new MemoryStream(atividadeEntrega.Arquivo);
-                atividadeEntrega.ArquivoFormato = new FormFile(stream, 0, atividadeEntrega.Arquivo.Length, "name", "fileName");
-            }
-
-            return View(atividadeEntrega);
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EntregarAtividade(AtividadeResponsavel atividadeResponsavel)
-        {
-            IFormFile imagemEnviada = atividadeResponsavel.ArquivoFormato;
-            
-
-            if (imagemEnviada != null)
-            {
-                MemoryStream ms = new MemoryStream();
-                try
-                {
-                    await imagemEnviada.OpenReadStream().CopyToAsync(ms);
-                    atividadeResponsavel.Arquivo = ms.ToArray();
-                }
-                catch
-                {
-                    ModelState.AddModelError("ArquivoFormato", "Insira um arquivo válido");
-                }
-            }
-            else ModelState.AddModelError("ArquivoFormato", "Insira um arquivo para enviar");
-
-            ViewBag.Erro = null;
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    atividadeResponsavel.TipoArquivo = imagemEnviada.ContentType;
-                    atividadeResponsavel.NomeArquivo = imagemEnviada.FileName;
-                    atividadeResponsavel.DataEntrega = DateTime.Now;
-                    atividadeResponsavel.Entregue = true;
-                    _context.Update(atividadeResponsavel);
-                    _context.SaveChanges();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    atividadeResponsavel.TipoArquivo = null;
-                    atividadeResponsavel.NomeArquivo = null;
-                    atividadeResponsavel.DataEntrega = null;
-                    atividadeResponsavel.Entregue = false;
-                    ViewBag.Erro = "Um erro inesperado ocorreu tente novamete";
-                    return View(atividadeResponsavel);
-                }
-                return RedirectToAction(nameof(Index), new { id = atividadeResponsavel.Atividade.ProjetoID });
-            }
-            return View(atividadeResponsavel);
-        }
-
+        /// <summary>
+        /// [POST: Delete] Pagina de exclusão de atividade
+        /// </summary>
+        /// <param name="id">id de atividade</param>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -495,23 +494,110 @@ namespace ControlIC.Controllers
             return RedirectToAction(nameof(Index), new { id = projetoID});
         }
 
+        [Authorize]
+        public async Task<IActionResult> Index(int? id)
+        {
+            int? idProjetoUrl = id;
+
+            if (idProjetoUrl == null)
+            {
+                return NotFound();
+            }
+
+            //Busca o usuario
+            int idUsuarioLogado = int.Parse(User.Claims.ElementAt(3).Value);
+            int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
+
+            //Verifica se o usuario que esta solicitando o documento é orientador/coorientador ou o dono da atividade
+            if (tipoUser == 2)
+            {
+                var responsavelOrientador = _context.Projetos.Where(p => p.UsuarioID == idUsuarioLogado && p.ID == idProjetoUrl).FirstOrDefault();
+                var responsavelCoorientador = _context.ProjetoCoorientadores.Where(p => p.UsuarioID == idUsuarioLogado && p.ProjetoID == idProjetoUrl).FirstOrDefault();
+                if (responsavelOrientador == null && responsavelCoorientador == null)
+                {
+                    return NotFound();
+                }
+            }
+            else if(tipoUser == 1)
+            {
+
+            }
+
+            var controlICContext = _context.Atividades.Include(a => a.Projeto).Where(a => a.ProjetoID == id);
+
+            
+
+            var projeto = _context.Projetos.Find(idProjetoUrl);
+            if (projeto == null) return NotFound();
+            ViewData["ProjetoID"] = idProjetoUrl;
+
+            return View(await controlICContext.ToListAsync());
+        }
+
+        /// <summary>
+        /// Verifica se uma atividade existe no banco
+        /// </summary>
         private bool AtividadeExists(int id)
         {
             return _context.Atividades.Any(e => e.ID == id);
         }
 
+        /// <summary>
+        /// [GET: Download] Página de download de arquivo acessada em Details de atividade
+        /// </summary>
         public IActionResult Download(int id)
         {
-            int idUser = int.Parse(User.Claims.ElementAt(3).Value);
             int atvResponsavelID = id;
-            var Resposta = _context.AtividadeResponsaveis.Where(r => r.ID == atvResponsavelID).Include(a => a.Usuario).Include(a => a.Atividade).FirstOrDefault();
+            var Resposta = _context.AtividadeResponsaveis.Where(r => r.ID == atvResponsavelID).Include(a => a.Usuario).Include(a => a.Atividade).ThenInclude(a => a.Projeto).ThenInclude(a => a.projetoCoorientadores).FirstOrDefault();
 
             if (Resposta == null || Resposta.Arquivo == null) return NotFound();
             if (Resposta.Atividade == null) return NotFound();
-            else if (!Resposta.Atividade.Restricao && Resposta.UsuarioID != idUser) return NotFound();
+           
+            //Verifica se a atividade NÃO é publica 
+            if (!Resposta.Atividade.Restricao)
+            {
+                //Verifica se tem usuário logado
+                if (User.Claims == null) return NotFound();
+                
+                //Busca o usuario
+                int idUser = int.Parse(User.Claims.ElementAt(3).Value);
+                int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
+                
+                //Verifica se o usuario que esta solicitando o documento é orientador/coorientador ou o dono da atividade
+                if (tipoUser == 2)
+                {
+                    //Verifica se o usuario NÃO é orientador ou coorientador do projeto
+                    if ((Resposta.Atividade.Projeto.UsuarioID != idUser) &&
+                       (Resposta.Atividade.Projeto.projetoCoorientadores.Where(p => p.UsuarioID == idUser) == null || Resposta.Atividade.Projeto.projetoCoorientadores.Where(p => p.UsuarioID == idUser).Count() <= 0)) return NotFound();
+                }
+                else
+                {
+                    //Verifica se o usuario NÃO é dono da atividade
+                    if (Resposta.UsuarioID != idUser) return NotFound();
+                }
 
-            var ArquivoPdf = new FileContentResult(Resposta.Arquivo, "application/pdf");
-            ArquivoPdf.FileDownloadName = Resposta.Atividade.Titulo +"_"+ Resposta.Usuario.Nome + ".pdf";
+            }
+
+            FileContentResult ArquivoPdf;
+            ArquivoPdf = new FileContentResult(Resposta.Arquivo, Resposta.TipoArquivo);
+            string extensão;
+            
+            //Verifica se é pdf
+            if (Resposta.TipoArquivo.Equals("application/pdf")) extensão = ".pdf";
+            
+            //Verifica se é word
+            else if (Resposta.TipoArquivo.Equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) extensão = ".docx";
+            
+            //Verifica se é excel
+            else if (Resposta.TipoArquivo.Equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) extensão = ".xlsx";
+            
+            //Verifica se é powepoint
+            else if (Resposta.TipoArquivo.Equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")) extensão = ".pptx";
+       
+            //Verifica se é .rar
+            else extensão = ".zip";
+
+            ArquivoPdf.FileDownloadName = Resposta.Atividade.Titulo + "_" + Resposta.Usuario.Nome + extensão;
             return ArquivoPdf;
         }
     }
