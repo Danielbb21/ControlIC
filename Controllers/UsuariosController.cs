@@ -519,7 +519,12 @@ namespace ControlIC.Controllers {
                                     .ThenInclude(p => p.Projeto)
                                     .ThenInclude(p => p.Usuario)
                                     .FirstOrDefaultAsync(m => m.ID == id);
-                
+
+            usuario.AtividadeResponsavels = _context.AtividadeResponsaveis.Where(u => u.UsuarioID == id)
+                .Include(p => p.Atividade)
+                .ThenInclude(p => p.Projeto)
+                .ThenInclude(p => p.Usuario)
+                .ToList();    
 
                 if(usuario.TipoUsuario == 3) return RedirectToAction("AdmPage");
                 
