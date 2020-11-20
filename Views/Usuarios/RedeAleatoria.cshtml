@@ -1,7 +1,7 @@
 ﻿@model ControlIC.Grafo.Rede
 
 @{
-    ViewData["Title"] = "Personal Network";
+    ViewData["Title"] = "Rede Aleatória";
 }
 
 <script>
@@ -23,10 +23,10 @@
         max-height: 450px;
         max-width: 1110px;
         width: 800px;
-        height: 500px;
+        height:500px;
         overflow: auto;
         position: relative;
-        display: inline-block;
+        display:inline-block;
     }
 
     .vertice {
@@ -46,8 +46,8 @@
 
     .Grafo{
         position:absolute;
-        width:@((Model.Conteudo.ElementAt(0).X*2*40).ToString())px;
-        height:@((Model.Conteudo.ElementAt(0).Y*2*40).ToString())px;
+        width:@((Model.Conteudo.Count()*100).ToString())px;
+        height:@((Model.Conteudo.Count()*100).ToString())px;
         left:50%;
         transform:translateX(-50%);
     }
@@ -66,13 +66,15 @@
             {
                 foreach (var ligacao in vertice.Ligacoes)
                 {
-                    <line style="stroke:black; position:absolute" x1="@(ligacao.Entrada.X*40)" x2="@(ligacao.Saida.X*40)" y1="@(ligacao.Entrada.Y*40)" y2="@(ligacao.Saida.Y*40)"></line>
+                    <line style="stroke:black; position:absolute" x1="@(ligacao.Entrada.X)" x2="@(ligacao.Saida.X)" y1="@(ligacao.Entrada.Y)" y2="@(ligacao.Saida.Y)"></line>
                 }
             }
         </svg>
         @foreach (var vertice in Model.Conteudo)
         {
-            <div class="vertice" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
+            <div class="vertice" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y).ToString())px; left:@((vertice.X).ToString())px">
+                <a style="color:white" asp-action="RedeEgoNucleo" asp-route-id="@vertice.Usuario.ID">@vertice.Usuario.Nome[0]</a>
+            </div>
         }
     </div>
 </div>
@@ -83,8 +85,4 @@
     <text id="EmailUsuario">@Model.Conteudo.ElementAt(0).Usuario.Email</text>
     <br />
     <text id="DataUsuario">@Model.Conteudo.ElementAt(0).Usuario.DataNascimento</text>
-    <br />
-    <hr />
-    <br />
-    <a asp-action="RedeAleatoria">Retornar para pagina de rede</a>
 </div>

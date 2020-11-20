@@ -956,12 +956,7 @@ namespace ControlIC.Controllers {
             return false;
         }
 
-        public IActionResult RedeEgo() 
-        {
-            var listUser = _context.Usuarios.ToList();
-            return View(listUser);
-        }
-
+        [Authorize]
         public IActionResult RedeEgoNucleo(int id) 
         {
             var usuario = _context.Usuarios.Where(u => u.ID == id)
@@ -980,6 +975,17 @@ namespace ControlIC.Controllers {
             Rede rede = new Rede(_context);
 
             rede.ConstruirGrafo(usuario);
+
+            return View(rede);
+        }
+
+        [Authorize]
+        public IActionResult RedeAleatoria() 
+        {
+            if (User.Claims.ElementAt(1).Value != "3") return NotFound();
+
+            Rede rede = new Rede(_context);
+            rede.ConstruirGrafoAleatorio();
 
             return View(rede);
         }

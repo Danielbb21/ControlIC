@@ -73,8 +73,55 @@ namespace ControlIC.Grafo
                 if (AlturaMaxima < vertice.Altura) AlturaMaxima = vertice.Altura;
             }
 
+            //ConversaoImagem();
             DefinirMatriz();
         }
+
+        public void ConstruirGrafoAleatorio() 
+        {
+            var listUsuarios = _context.Usuarios.ToList();
+            foreach(var usuario in listUsuarios) 
+            {
+                if(Conteudo.Where(v => v.Usuario == usuario).FirstOrDefault() == null) 
+                {
+                    Vertice vertice = new Vertice();
+                    vertice.Usuario = usuario;
+
+                    if (usuario.TipoUsuario == 1) BuscaAlturaEstudante(vertice, 0);
+                    else if (usuario.TipoUsuario == 2) BuscaAlturaProfessor(vertice, 0);
+                }
+            }
+
+            Random random = new Random();
+            int Y, X;
+
+            foreach(var vertice in Conteudo) 
+            {
+                X = random.Next(0, Conteudo.Count() * 90);
+                Y = random.Next(0, Conteudo.Count() * 90);
+
+                vertice.X = X;
+                vertice.Y = Y;
+            }
+        }
+
+        //private void ConversaoImagem()
+        //{
+        //    foreach (var vertice in Conteudo)
+        //    {
+        //        if (vertice.Usuario.ImgUsuario != null)
+        //        {
+        //            string imreBase64Data = Convert.ToBase64String(vertice.Usuario.ImgUsuario);
+        //            string imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+        //            vertice.Usuario.ImgUrl = imgDataURL;
+        //        }
+        //        else
+        //        {
+        //            vertice.Usuario.ImgUrl = "/Imagens/Placeholder_Perfil.png";
+        //        }
+        //    }
+        //}
+
         private void BuscaAlturaEstudante(Vertice Predecessor, int altura)
         {
             Usuario usuario = Predecessor.Usuario;
@@ -412,7 +459,7 @@ namespace ControlIC.Grafo
         {
             int contX = 0, contY = 0, tamanhoAdicional = 0;
             int anguloX = 1, anguloY = 1;
-            int delimitacaoX = 5, delimitacaoY = 3;
+            int delimitacaoX = 5, delimitacaoY = 5;
 
             Conteudo.ElementAt(0).X = ((TamanhoMatriz - 1) / 2);
             Conteudo.ElementAt(0).Y = ((TamanhoMatriz - 1) / 2);
@@ -421,8 +468,8 @@ namespace ControlIC.Grafo
             //POSIÇÃO PARA O NUCLEO E LIGACOES
             foreach (var ligacao in Conteudo.ElementAt(0).Ligacoes)
             {
-                ligacao.Saida.X = ligacao.Entrada.X - 2 - 2*tamanhoAdicional + contX;
-                ligacao.Saida.Y = ligacao.Entrada.Y - 2 - 2*tamanhoAdicional + contY;
+                ligacao.Saida.X = ligacao.Entrada.X - 2 - tamanhoAdicional + contX;
+                ligacao.Saida.Y = ligacao.Entrada.Y - 2 - tamanhoAdicional + contY;
 
                 if(contY == 0 || contY == 4) 
                 {
@@ -443,7 +490,12 @@ namespace ControlIC.Grafo
                     }
                 }
 
-                if (contX == 5 + 2 * tamanhoAdicional && contY == 5 + 2 * tamanhoAdicional) tamanhoAdicional++;
+                if (contX == 5 + 2 * tamanhoAdicional && contY == 5 + 2 * tamanhoAdicional) 
+                {
+                    tamanhoAdicional++;
+                    delimitacaoX += 2;
+                    delimitacaoY += 2;
+                }
 
                 ligacao.Saida.IsPrinted = true;
             }
@@ -491,25 +543,55 @@ namespace ControlIC.Grafo
                             }
                         }
 
-                        ligacao.Saida.X = ligacao.Entrada.X - (2 * anguloX) - 2 * tamanhoAdicional + contX * anguloX;
-                        ligacao.Saida.Y = ligacao.Entrada.Y - (2 * anguloY) - 2 * tamanhoAdicional + contY * anguloY;
+                        ligacao.Saida.X = ligacao.Entrada.X - (2 * anguloX) - tamanhoAdicional + contX * anguloX;
+                        ligacao.Saida.Y = ligacao.Entrada.Y - (2 * anguloY) - tamanhoAdicional + contY * anguloY;
 
                         if (contY == 0 || contY == delimitacaoY - 1)
                         {
                             contX++;
                             if (contX == delimitacaoX)
                             {
-                                contX = 0;
                                 contY++;
+
+                                if (contY == delimitacaoY)
+                                {
+                                    tamanhoAdicional++;
+
+                                    if (delimitacaoY < delimitacaoX)
+                                    {
+                                        delimitacaoY += 1;
+                                        delimitacaoX += 2;
+                                    }
+                                    else
+                                    {
+                                        delimitacaoY += 2;
+                                        delimitacaoX += 1;
+                                    }
+
+                                    contY = 0;
+                                }
+
+                                contX = 0;
                             }
                         }
                         else
                         {
-                            contX = 0;
-                            contY++;
+                            if (delimitacaoY < delimitacaoX)
+                            {
+                                if (contX == 0) contX = delimitacaoX - 1;
+                                else 
+                                {
+                                    contX = 0;
+                                    contY++;
+                                }
+                            }
+                            else
+                            {
+                                contX = 0;
+                                contY++;
+                            }
                         }
 
-                        if (contX == 5 + 2 * tamanhoAdicional && contY == 5 + 2 * tamanhoAdicional) tamanhoAdicional++;
                         ligacao.Saida.IsPrinted = true;
 
                         foreach(var v in Conteudo) 
