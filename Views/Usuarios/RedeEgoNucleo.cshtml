@@ -30,18 +30,21 @@
     }
 
     .vertice {
-        width: 20px;
-        height: 20px;
-        padding-left:2px;
-        font-weight:bold;
-        color:white;
+        width: 25px;
+        height: 25px;
+        text-align:center;
+        font-weight: bold;
+        color: white;
         position: absolute;
+        border-radius: 200px;
+    }
+
+    .ligacao {
         background-color: blue;
     }
 
-    .nucleo{
-        top:10px;
-        left:10px;
+    .nucleo {
+        background-color: darkred;
     }
 
     .Grafo{
@@ -72,7 +75,14 @@
         </svg>
         @foreach (var vertice in Model.Conteudo)
         {
-            <div class="vertice" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
+            @if (vertice.Altura == 0)
+            {
+                <div class="vertice nucleo" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y * 40).ToString())px; left:@((vertice.X * 40).ToString())px">@vertice.Usuario.Nome[0]</div>
+            }
+            else
+            {
+                <div class="vertice ligacao" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
+            }
         }
     </div>
 </div>
