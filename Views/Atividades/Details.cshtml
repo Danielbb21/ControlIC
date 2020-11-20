@@ -36,7 +36,7 @@
                 }
                 else
                 {
-                    <label class="text-primary">Público</label>
+                    <label class="text-primary">Privado</label>
                 }
             }
         </dd>
@@ -98,5 +98,5 @@
 </div>
 <div>
     <a class="btn btn-primary" asp-action="Index" asp-route-id="@Model.ProjetoID">Voltar</a>
-    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.ID" asp-route-idProjetoUrl="@Model.ProjetoID">Editar</a>
+    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.ID" >Editar</a>
 </div>

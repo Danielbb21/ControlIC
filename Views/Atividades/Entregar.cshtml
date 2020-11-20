@@ -9,12 +9,12 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="EntregarAtividade" enctype="multipart/form-data">
-            <input type="text" asp-for="ID" />
+            <input type="hidden" asp-for="ID" />
             <input type="hidden" asp-for="DataEntrega" />
             <input type="hidden" asp-for="Entregue" />
-            <input type="text" asp-for="AtividadeID" />
+            <input type="hidden" asp-for="AtividadeID" />
             <input type="hidden" asp-for="Atividade.ProjetoID" />
-            <input type="text" asp-for="UsuarioID" />
+            <input type="hidden" asp-for="UsuarioID" />
             <input type="hidden" asp-for="Atividade.Titulo" />
             <input type="hidden" asp-for="Atividade.Texto" />
             <input type="hidden" asp-for="Atividade.DataPrevista" />

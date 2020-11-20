@@ -1,53 +1,94 @@
 ﻿@model IEnumerable<ControlIC.Models.Atividade>
 
-@{
-    ViewData["Title"] = "Index";
-}
-
 <h1>Atividades</h1>
 
-<p>
-    <a asp-action="CreateAtividade" asp-route-idProjetoUrl="@ViewData["ProjetoID"]">Criar atividade</a>
-</p>
+@{
+    if (Int32.Parse(ViewData["tipoUser"].ToString()) == 2)
+    {
+        <p>
+            <a asp-action="CreateAtividade" asp-route-id="@ViewData["ProjetoID"]">Criar atividade</a>
+        </p>
+    }
+}
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Cor)
+                Título
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Titulo)
+                Data Entrega
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Texto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DataPrevista)
+                @{ if (Int32.Parse(ViewData["tipoUser"].ToString()) != 2)
+                    {
+                        <label>Status</label>
+                    }
+                }
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <label style="background-color: rgb(@item.Cor); border:solid #262626 1px; padding: 12px; border-radius: 200px;" />
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Titulo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Texto)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataPrevista)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DataPrevista)
+                </td>
+                <td>
+                    @{
+                        AtividadeResponsavel atvR = item.Participantes.Find(p => p.UsuarioID == Int32.Parse(ViewData["idUsuario"].ToString()));
+                        if (atvR != null)
+                        {
+                            if (atvR.Entregue)
+                            {
+                                <label class="text-success">Entregue</label>
+                            }
+                            else
+                            {
+                                <label class="text-danger">Não entregue</label>
+                            }
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+
+
+                        if (Int32.Parse(ViewData["tipoUser"].ToString()) == 2)
+                        {
+                            if (ViewData["Orientador"] != null)
+                            {
+                                <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.ID">Excluir</a>
+                            }
+                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.ID">Editar</a>
+                            <a class="btn btn-dark" asp-action="Details" asp-route-id="@item.ID" asp-route-idProjetoUrl="@Int32.Parse(ViewData["ProjetoID"].ToString())">Entregas</a>
+                        }
+                        else
+                        {
+                            AtividadeResponsavel atvResp = item.Participantes.Find(p => p.UsuarioID == Int32.Parse(ViewData["idUsuario"].ToString()));
+                            if (atvResp != null)
+                            {
+                                string labelLink;
+                                if(atvResp.Arquivo == null)
+                                {
+                                    labelLink = "Entregar Atividade";
+                                }
+                                else
+                                {
+                                    labelLink = "Editar Entrega";
+                                }
+                                <a class="btn btn-primary" asp-action="Entregar" asp-controller="Atividades" asp-route-id="@atvResp.ID">@labelLink</a>
+                            }
+                        }
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

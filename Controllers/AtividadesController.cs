@@ -112,9 +112,9 @@ namespace ControlIC.Controllers
         /// [GET: CreateAtividade] Página de criar atividade
         /// </summary>
         [Authorize]
-        [Route("Atividades/CreateAtividade/{idProjetoUrl:int?}")]
-        public IActionResult CreateAtividade(int? idProjetoUrl)
+        public IActionResult CreateAtividade(int? id)
         {
+            int? idProjetoUrl = id;
             //Verifica se o ID é nulo
             if (idProjetoUrl == null || idProjetoUrl <= 0)
             {
@@ -173,7 +173,6 @@ namespace ControlIC.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        [Route("Atividades/CreateAtividade/{idProjetoUrl:int?}")]
         public async Task<IActionResult> CreateAtividade(AtividadeModel atividadeModel)
         {
             int idProjetoUrl = 0;
@@ -242,17 +241,18 @@ namespace ControlIC.Controllers
         /// [GET: Edit] Página de edição da atividade
         /// </summary>
         [Authorize]
-        public async Task<IActionResult> Edit(int? id, int? idProjetoUrl)
+        public async Task<IActionResult> Edit(int? id)
         {
             //Verifica se os parametros são válidos
             int? idAtividade = id;
-            if (idAtividade == null || idAtividade <= 0 || idProjetoUrl == null || idProjetoUrl <= 0)
+            if (idAtividade == null || idAtividade <= 0)
             {
                 return NotFound();
             }
 
             //Verifica se o usuário é professor
             int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
+            int idUsuarioLogado = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
             if (tipoUser != 2)
             {
                 return NotFound();
@@ -261,6 +261,7 @@ namespace ControlIC.Controllers
             //Busca a atividade de acordo com o idAtivide
             var atividade = await _context.Atividades
                   .Include(a => a.Projeto)
+                  .ThenInclude(a => a.projetoCoorientadores)
                   .Include(a => a.Participantes)
                   .ThenInclude(A => A.Usuario)
                   .FirstOrDefaultAsync(m => m.ID == idAtividade);
@@ -271,21 +272,13 @@ namespace ControlIC.Controllers
                 return NotFound();
             }
 
-            //Verifica se o idProjeto em ativide é o mesmo do idProjetoUrl do parametro
-            if (atividade.Projeto.ID != idProjetoUrl)
+            //Verifica so usuario esta ligado a atividade
+            var atvCoorientador = atividade.Projeto.projetoCoorientadores.Find(p => p.UsuarioID == idUsuarioLogado && p.ProjetoID == atividade.ProjetoID);
+            if (atvCoorientador == null && atividade.Projeto.UsuarioID != idUsuarioLogado)
             {
                 return NotFound();
             }
 
-            // Verifica se o usuário passado tem relação com o projeto para acessar esta tela
-            int idUsuarioLogado = Int32.Parse(HttpContext.User.Claims.ToList()[3].Value);
-            var responsavelOrientador = _context.Projetos.Where(p => p.UsuarioID == idUsuarioLogado && p.ID == idProjetoUrl).FirstOrDefault();
-            var responsavelCoorientador = _context.ProjetoCoorientadores.Where(p => p.UsuarioID == idUsuarioLogado && p.ProjetoID == idProjetoUrl).FirstOrDefault();
-            if (responsavelOrientador == null && responsavelCoorientador == null)
-            {
-                return NotFound();
-            }
-            
             return View(atividade);
         }
         
@@ -333,21 +326,22 @@ namespace ControlIC.Controllers
                 {
                     _context.Update(atividade);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index), new { id = atividade.ProjetoID });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     ViewBag.Erro = "Um erro inesperado ocorreu tente novamete";
                 }
-                return RedirectToAction(nameof(Index), new { id = atividade.ProjetoID });
             }
             return View(atividade);
         }
 
         /// <summary>
-        /// [GET: EntregarAtividade] Página de entregar atividade
+        /// [GET: Entregar] Página de entregar atividade
         /// </summary>
         [Authorize]
-        public async Task<IActionResult> EntregarAtividade(int? id)
+        [HttpGet]
+        public async Task<IActionResult> Entregar(int? id)
         {
             //Verifica os parametros
             if (id == null)
@@ -380,12 +374,12 @@ namespace ControlIC.Controllers
         }
 
         /// <summary>
-        /// [POST: EntregarAtividade] Página de entregar atividade 
+        /// [POST: Entregar] Página de entregar atividade 
         /// </summary>
         [Authorize]
-        [HttpPost("EntregarAtividade")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EntregarAtividade(int idAtividade, int idProjetoUr, AtividadeResponsavel atividadeResponsavel)
+        public async Task<IActionResult> Entregar(AtividadeResponsavel atividadeResponsavel)
         {
             IFormFile imagemEnviada = atividadeResponsavel.ArquivoFormato;
             
@@ -423,28 +417,31 @@ namespace ControlIC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    atividadeResponsavel.TipoArquivo = null;
-                    atividadeResponsavel.NomeArquivo = null;
-                    atividadeResponsavel.DataEntrega = null;
-                    atividadeResponsavel.Entregue = false;
-                    atividadeResponsavel.Atividade = atv;
+                    LimparCampos(atividadeResponsavel, atv);
                     ViewBag.Erro = "Um erro inesperado ocorreu tente novamente.";
                     return View(atividadeResponsavel);
                 }
                 catch(Exception e)
                 {
-                    atividadeResponsavel.TipoArquivo = null;
-                    atividadeResponsavel.NomeArquivo = null;
-                    atividadeResponsavel.DataEntrega = null;
-                    atividadeResponsavel.Entregue = false;
-                    atividadeResponsavel.Atividade = atv;
+                    LimparCampos(atividadeResponsavel, atv);
                     ViewBag.Erro = "Formato de arquivo incompatível.";
                     return View(atividadeResponsavel);
                 }
                 return RedirectToAction(nameof(Index), new { id = atv.ProjetoID });
-                
             }
             return View(atividadeResponsavel);
+        }
+
+        /// <summary>
+        /// Limpar os campos mocados em entregar atividade
+        /// </summary>
+        private void LimparCampos(AtividadeResponsavel atividadeResponsavel, Atividade atv)
+        {
+            atividadeResponsavel.TipoArquivo = null;
+            atividadeResponsavel.NomeArquivo = null;
+            atividadeResponsavel.DataEntrega = null;
+            atividadeResponsavel.Entregue = false;
+            atividadeResponsavel.Atividade = atv;
         }
 
         /// <summary>
@@ -481,6 +478,7 @@ namespace ControlIC.Controllers
         /// <param name="id">id de atividade</param>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var atividade = await _context.Atividades.FindAsync(id);
@@ -503,6 +501,7 @@ namespace ControlIC.Controllers
             //Busca o usuario
             int idUsuarioLogado = int.Parse(User.Claims.ElementAt(3).Value);
             int tipoUser = Int32.Parse(HttpContext.User.Claims.ToList()[1].Value);
+            ViewData["Orientador"] = null;
 
             //Verifica se o usuario que esta solicitando o documento é orientador/coorientador ou o dono da atividade
             if (tipoUser == 2)
@@ -513,19 +512,21 @@ namespace ControlIC.Controllers
                 {
                     return NotFound();
                 }
+                ViewData["Orientador"] = responsavelOrientador;
             }
             else if(tipoUser == 1)
             {
-
+                var estudante = _context.ProjetoEstudantes.Where(p => p.UsuarioID == idUsuarioLogado && p.ProjetoID == idProjetoUrl);
+                if (estudante == null) return NotFound();
             }
-
-            var controlICContext = _context.Atividades.Include(a => a.Projeto).Where(a => a.ProjetoID == id);
-
-            
-
-            var projeto = _context.Projetos.Find(idProjetoUrl);
-            if (projeto == null) return NotFound();
+            else
+            {
+                return NotFound();
+            }
+            var controlICContext = _context.Atividades.Include(a => a.Participantes).Include(a => a.Projeto).ThenInclude(a => a.Usuario).Where(a => a.ProjetoID == idProjetoUrl);
             ViewData["ProjetoID"] = idProjetoUrl;
+            ViewData["idUsuario"] = idUsuarioLogado;
+            ViewData["tipoUser"] = tipoUser;
 
             return View(await controlICContext.ToListAsync());
         }
@@ -547,7 +548,6 @@ namespace ControlIC.Controllers
             var Resposta = _context.AtividadeResponsaveis.Where(r => r.ID == atvResponsavelID).Include(a => a.Usuario).Include(a => a.Atividade).ThenInclude(a => a.Projeto).ThenInclude(a => a.projetoCoorientadores).FirstOrDefault();
 
             if (Resposta == null || Resposta.Arquivo == null) return NotFound();
-            if (Resposta.Atividade == null) return NotFound();
            
             //Verifica se a atividade NÃO é publica 
             if (!Resposta.Atividade.Restricao)

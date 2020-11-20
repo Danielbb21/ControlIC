@@ -71,7 +71,6 @@
                                         <img src="@Model.AtividadeResponsaveisModel[i].ImgUsuario" style="border-style:solid; border-color:black; border-width:1px; width:50px; height:50px; border-radius:100px" />
                                         @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].ImgUsuario)
                                         @Html.HiddenFor(modelItem => Model.AtividadeResponsaveisModel[i].UsuarioID)
-                                        <!--Permite persistir dados porem ocultando eles para o usuario porem guardando eles caso necessite enviar os dados para o controller da tela-->
 
                                     </td>
                                     <td class="text-center align-middle">
@@ -115,6 +114,4 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    
 }
