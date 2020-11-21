@@ -179,6 +179,8 @@ namespace ControlIC.Controllers
             //Criar a lista de erros especificos
             List<string> Erros = new List<string>();
 
+            ModelState.Remove("Atividade.DataPrevista");
+
             //Verificações de erros em atividade
             if (atividadeModel.Atividade != null)
             {
@@ -187,8 +189,8 @@ namespace ControlIC.Controllers
                 else if (atividadeModel.Atividade.Titulo.Length > 50) ModelState.AddModelError("Atividade.Titulo", "Limite de 50 caracteres");
                 if (atividadeModel.Atividade.Texto == null || atividadeModel.Atividade.Texto.Trim().Length <= 0) ModelState.AddModelError("Atividade.Texto", "Preencha este campo");
                 else if (atividadeModel.Atividade.Texto.Length > 200) ModelState.AddModelError("Atividade.Texto", "Limite de 200 caracteres");
-                if (atividadeModel.Atividade.DataPrevista == null) ModelState.AddModelError("Atividade.DataPrevista", "Selecione uma data");
-                else if (DateTime.Compare(atividadeModel.Atividade.DataPrevista, DateTime.Now) < 0) ModelState.AddModelError("Atividade.DataPrevista", "Selecione um dia de entrega válido");
+                
+                if (DateTime.Compare(atividadeModel.Atividade.DataPrevista, DateTime.Now) < 0) ModelState.AddModelError("Atividade.DataPrevista", "Selecione um dia de entrega válido");
             }
             else
             {

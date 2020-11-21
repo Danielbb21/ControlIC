@@ -9,7 +9,6 @@ namespace ControlIC.Data
 {
     public class ControlICContext : DbContext
     {
-
         public ControlICContext (DbContextOptions<ControlICContext> options)
             : base(options)
         {

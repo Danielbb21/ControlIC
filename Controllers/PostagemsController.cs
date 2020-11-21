@@ -23,28 +23,31 @@ namespace ControlIC.Views
         // GET: Postagems
         public async Task<IActionResult> Index()
         {
-            var controlICContext = _context.Postagens.Include(p => p.Projeto).Include(p => p.Usuario);
-            return View(await controlICContext.ToListAsync());
+            return NotFound();
+            //var controlICContext = _context.Postagens.Include(p => p.Projeto).Include(p => p.Usuario);
+            //return View(await controlICContext.ToListAsync());
         }
 
         // GET: Postagems/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            return NotFound();
 
-            var postagem = await _context.Postagens
-                .Include(p => p.Projeto)
-                .Include(p => p.Usuario)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (postagem == null)
-            {
-                return NotFound();
-            }
+            //if (id == null)
+            //{
+            //    return NotFound();
+            //}
 
-            return View(postagem);
+            //var postagem = await _context.Postagens
+            //    .Include(p => p.Projeto)
+            //    .Include(p => p.Usuario)
+            //    .FirstOrDefaultAsync(m => m.ID == id);
+            //if (postagem == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(postagem);
         }
 
         // GET: Postagems/Create
@@ -86,6 +89,8 @@ namespace ControlIC.Views
             postagem.ID = 0;
             postagem.DataPostagem = DateTime.Now;
             postagem.UsuarioID = int.Parse(User.Claims.ElementAt(3).Value);
+
+            if (string.IsNullOrEmpty(postagem.Texto)) ModelState.AddModelError("Texto", "Preencha o campo.");
 
             if (ModelState.IsValid)
             {
@@ -133,6 +138,8 @@ namespace ControlIC.Views
                 return NotFound();
             }
 
+            if (string.IsNullOrEmpty(postagem.Texto)) ModelState.AddModelError("Texto", "Preencha o campo.");
+
             if (ModelState.IsValid)
             {
                 postagem.DataPostagem = DateTime.Now;
@@ -162,21 +169,23 @@ namespace ControlIC.Views
         // GET: Postagems/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            return NotFound();
 
-            var postagem = await _context.Postagens
-                .Include(p => p.Projeto)
-                .Include(p => p.Usuario)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (postagem == null)
-            {
-                return NotFound();
-            }
+            //if (id == null)
+            //{
+            //    return NotFound();
+            //}
 
-            return View(postagem);
+            //var postagem = await _context.Postagens
+            //    .Include(p => p.Projeto)
+            //    .Include(p => p.Usuario)
+            //    .FirstOrDefaultAsync(m => m.ID == id);
+            //if (postagem == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(postagem);
         }
 
         // POST: Postagems/Delete/5

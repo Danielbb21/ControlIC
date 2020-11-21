@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Criar</h1>
 
 <h4>Recrutamento</h4>
 <hr />
@@ -27,7 +27,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="ArquivoFormato" class="control-label">Edital:</label>
-                <input type="file" asp-for="ArquivoFormato" />
+                <input type="file" accept="application/pdf" asp-for="ArquivoFormato" />
                 <span asp-validation-for="ArquivoFormato" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
@@ -36,14 +36,14 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Criar" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Retornar</a>
 </div>
 
 @section Scripts {

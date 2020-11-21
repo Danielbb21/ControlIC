@@ -91,10 +91,11 @@
     <br />
     <fieldset>
         <h4>
-            <strong onclick="ExibirTableConvites(event)" id="TextConvites">Convites</strong> |
+            <strong onclick="ExibirTableConvites(event)" id="TextConvites">Convites</strong> 
             @if (Model.TipoUsuario == 1)
             {
-                <strong onclick="ExibirTableAtividades(event)" id="TextAtividades">Atividades</strong>
+                
+                <strong onclick="ExibirTableAtividades(event)" id="TextAtividades">| Atividades</strong>
             }
         </h4>
         <table id="TableConvites" style="display:none" class="table">
@@ -197,7 +198,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                foreach (var i in Model.AtividadeResponsavels)
+                foreach (var i in Model.AtividadeResponsavels.Where(a => !a.Entregue))
                 {
                     <tr>
                         <td>

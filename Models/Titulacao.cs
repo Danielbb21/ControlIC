@@ -13,6 +13,7 @@ namespace ControlIC.Models
         public string NomeTitulacao { get; set; }
         [Required(ErrorMessage ="Campo precisa ser preenchido")]
         public string NomeInstituicao { get; set; }
+        [Required(ErrorMessage = "Campo precisa ser preenchido")]
         public DateTime DataTitulacao { get; set; }
 
     }

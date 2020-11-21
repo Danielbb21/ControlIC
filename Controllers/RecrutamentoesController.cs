@@ -106,6 +106,10 @@ namespace ControlIC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Descricao,LinkExterno,ArquivoFormato,DataPostagem,status,ProjetoID")] Recrutamento recrutamento)
         {
+            if (string.IsNullOrEmpty(recrutamento.Descricao)) ModelState.AddModelError("Descricao", "Campo precisa estar preenchido");
+            if(string.IsNullOrEmpty(recrutamento.LinkExterno)) ModelState.AddModelError("LinkExterno", "Campo precisa estar preenchido");
+            if(recrutamento.ArquivoFormato == null) ModelState.AddModelError("ArquivoFormato", "Arquivo dever ser submetido.");
+
             if (ModelState.IsValid)
             {
                 IFormFile arquivo = recrutamento.ArquivoFormato;

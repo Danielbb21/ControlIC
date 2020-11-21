@@ -27,6 +27,7 @@
     <input type="date" class="form-control" name="DataNascimento" placeholder="" />
     @Html.ValidationMessageFor(model => model.DataNascimento)
     <br />
+    <br />
     <div class="form-group">
         <label asp-for="DataIngresso" class="control-label">Ano de ingresso</label>
         <select asp-for="DataIngresso" class="form-control" asp-items="ViewBag.AnoIngresso"></select>
@@ -34,11 +35,9 @@
     @Html.ValidationMessageFor(model => model.DataIngresso)
     <br />
     <br />
-    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="M" checked="checked" />Male</label>
-    @Html.ValidationMessageFor(model => model.Genero)
-    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="F">Female</label>
-    @Html.ValidationMessageFor(model => model.Genero)
-    <br />
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="M" checked="checked"/>Homem</label>
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="F">Mulher</label>
+    <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" name="Genero" value="O">Outros</label>
     <br />
     <br />
     <div class="form-group">
