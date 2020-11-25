@@ -37,12 +37,14 @@
         color: white;
         position: absolute;
         border-radius: 200px;
-        background-color: blue;
     }
 
-    .nucleo{
-        top:10px;
-        left:10px;
+    .aluno{
+        background-color:blue
+    }
+
+    .professor{
+        background-color:darkgreen
     }
 
     .Grafo{
@@ -73,9 +75,18 @@
         </svg>
         @foreach (var vertice in Model.Conteudo)
         {
-            <div class="vertice" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y).ToString())px; left:@((vertice.X).ToString())px">
-                <a style="color:white" asp-action="RedeEgoNucleo" asp-route-id="@vertice.Usuario.ID">@vertice.Usuario.Nome[0]</a>
-            </div>
+            if (vertice.Usuario.TipoUsuario == 1)
+            {
+                <div class="vertice aluno" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y).ToString())px; left:@((vertice.X).ToString())px">
+                    <a style="color:white" asp-action="RedeEgoNucleo" asp-route-id="@vertice.Usuario.ID">@vertice.Usuario.Nome[0]</a>
+                </div>
+            }
+            else
+            {
+                <div class="vertice professor" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y).ToString())px; left:@((vertice.X).ToString())px">
+                    <a style="color:white" asp-action="RedeEgoNucleo" asp-route-id="@vertice.Usuario.ID">@vertice.Usuario.Nome[0]</a>
+                </div>
+            }
         }
     </div>
 </div>

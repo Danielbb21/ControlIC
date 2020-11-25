@@ -39,8 +39,12 @@
         border-radius: 200px;
     }
 
-    .ligacao {
+    .aluno {
         background-color: blue;
+    }
+
+    .professor{
+        background-color:darkgreen;
     }
 
     .nucleo {
@@ -81,7 +85,14 @@
             }
             else
             {
-                <div class="vertice ligacao" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
+                if (vertice.Usuario.TipoUsuario == 1)
+                {
+                    <div class="vertice aluno" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
+                }
+                else
+                {
+                    <div class="vertice professor" onmouseover="MudarTabela('@vertice.Usuario.Nome', '@vertice.Usuario.Email', '@vertice.Usuario.DataNascimento')" style=" top:@((vertice.Y*40).ToString())px; left:@((vertice.X*40).ToString())px">@vertice.Usuario.Nome[0]</div>
+                }
             }
         }
     </div>

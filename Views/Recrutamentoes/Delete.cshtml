@@ -4,54 +4,45 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
-
-<h3>Are you sure you want to delete this?</h3>
+<h1>Excluir Recrutamento</h1>
 <div>
-    <h4>Recrutamento</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descricao)
+            Descrição:
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Descricao)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LinkExterno)
+            Link Externo:
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.LinkExterno)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Arquivo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Arquivo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DataPostagem)
+            Data da Postagem:
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DataPostagem)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.status)
+            Status:
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.status)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Projeto)
+            Projeto:
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Projeto.ID)
+            @Model.Projeto.Nome
         </dd class>
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="ID" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <a asp-action="Index" asp-route-idProjeto="@Model.ProjetoID">Back to List</a>
     </form>
 </div>

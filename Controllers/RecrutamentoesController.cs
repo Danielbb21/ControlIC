@@ -108,7 +108,8 @@ namespace ControlIC.Controllers
         {
             if (string.IsNullOrEmpty(recrutamento.Descricao)) ModelState.AddModelError("Descricao", "Campo precisa estar preenchido");
             if(string.IsNullOrEmpty(recrutamento.LinkExterno)) ModelState.AddModelError("LinkExterno", "Campo precisa estar preenchido");
-            if(recrutamento.ArquivoFormato == null) ModelState.AddModelError("ArquivoFormato", "Arquivo dever ser submetido.");
+            if (recrutamento.ArquivoFormato == null) ModelState.AddModelError("ArquivoFormato", "Arquivo dever ser submetido.");
+            else if (recrutamento.ArquivoFormato.ContentType != "application/pdf") ModelState.AddModelError("ArquivoFormato", "Formato invalido para o arquivo");
 
             if (ModelState.IsValid)
             {
@@ -178,6 +179,11 @@ namespace ControlIC.Controllers
             {
                 return NotFound();
             }
+
+            if (string.IsNullOrEmpty(recrutamento.Descricao)) ModelState.AddModelError("Descricao", "Campo precisa estar preenchido");
+            if (string.IsNullOrEmpty(recrutamento.LinkExterno)) ModelState.AddModelError("LinkExterno", "Campo precisa estar preenchido");
+            if (recrutamento.ArquivoFormato == null) ModelState.AddModelError("ArquivoFormato", "Arquivo dever ser submetido.");
+            else if (recrutamento.ArquivoFormato.ContentType != "application/pdf") ModelState.AddModelError("ArquivoFormato", "Formato invalido para o arquivo");
 
             if (ModelState.IsValid)
             {

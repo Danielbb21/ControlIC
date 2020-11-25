@@ -82,10 +82,11 @@ namespace ControlIC.Grafo
             var listUsuarios = _context.Usuarios.ToList();
             foreach(var usuario in listUsuarios) 
             {
-                if(Conteudo.Where(v => v.Usuario == usuario).FirstOrDefault() == null) 
+                if(Conteudo.Where(v => v.Usuario == usuario).FirstOrDefault() == null && usuario.TipoUsuario != 3) 
                 {
                     Vertice vertice = new Vertice();
                     vertice.Usuario = usuario;
+                    Conteudo.Add(vertice);
 
                     if (usuario.TipoUsuario == 1) BuscaAlturaEstudante(vertice, 0);
                     else if (usuario.TipoUsuario == 2) BuscaAlturaProfessor(vertice, 0);
