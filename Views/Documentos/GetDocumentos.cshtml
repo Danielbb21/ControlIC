@@ -1,0 +1,41 @@
+﻿@model IEnumerable<ControlIC.Controllers.DocumentosController.ModelDocumentos>
+
+<form asp-controller="Documentos" asp-action="GetDocumentos" method="get">
+    <h1>Documentos</h1>
+    <hr />
+
+    <div class="form-group">
+        <label style="font-weight:bold">Nota:</label>
+        <label>Essa API possui o objetivo de distribuir os documentos publicos inseridos nos projetos criados nessa aplicação Web.
+               Insira o nome do projeto o qual tenha interesse de colher os documentos.</label>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label style="font-weight:bold" class="control-label">Filtrar:</label>
+                <input placeholder="Insira o nome do projeto" type="text" class="form-control" name="NomeProjeto">
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-group">
+                <label class="control-label" style="color:white;">Botão</label>
+                <input type="submit" value="OK" class="btn btn-primary form-control" />
+            </div>
+        </div>
+    </div>
+    <label style="font-weight:bold">Resultado:</label>
+    <div style="width: auto; border: groove; padding: 25px;">
+        [
+        @foreach (var item in Model)
+        {
+            <text>{
+                    <p>"@Html.DisplayNameFor(model => model.NomeProjeto)": "@item.NomeProjeto",</p>
+                    <p>"@Html.DisplayNameFor(model => model.DescricaoProjeto)": "@item.DescricaoProjeto",</p>
+                    <p>"@Html.DisplayNameFor(model => model.LinkDocumento)": "<a href="@item.LinkDocumento">@item.LinkDocumento</a>"</p>
+                  }</text>
+            <br />
+        }
+        ]
+    </div>
+</form>

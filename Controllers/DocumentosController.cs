@@ -12,7 +12,7 @@ namespace ControlIC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DocumentosController : ControllerBase
+    public class DocumentosController : Controller
     {
         private readonly ControlICContext _context;
 
@@ -25,28 +25,44 @@ namespace ControlIC.Controllers
         {
             public string NomeProjeto { get; set; }
             public string LinkDocumento { get; set; }
+            public string DescricaoProjeto { get; set; }
         }
 
         // GET: api/Documentos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModelDocumentos>>> GetDocumentos()
+        public async Task<ActionResult> GetDocumentos(string NomeProjeto)
         {
-            var listAtividades = await _context.AtividadeResponsaveis.Where(a => a.Atividade.Restricao)
-                                               .Include(a => a.Atividade)
-                                               .ThenInclude(a => a.Projeto)
-                                               .ToListAsync();
+            List<AtividadeResponsavel> listDocumentos;
 
-            List<ModelDocumentos> list = new List<ModelDocumentos>();
-
-            foreach(var item in listAtividades) 
+            if (!string.IsNullOrEmpty(NomeProjeto))
             {
-                ModelDocumentos documentos = new ModelDocumentos();
-                documentos.NomeProjeto = item.Atividade.Projeto.Nome;
-                documentos.LinkDocumento = "https://localhost:44346/Atividades/Download/" + item.ID.ToString();
-                list.Add(documentos);
+                listDocumentos = await _context.AtividadeResponsaveis
+                                            .Where(p => p.Atividade.Projeto.Nome.ToLower().Contains(NomeProjeto.ToLower()) && p.Atividade.Restricao)
+                                            .Include(p => p.Atividade)
+                                            .ThenInclude(p => p.Projeto)
+                                            .ToListAsync();
+            }
+            else
+            {
+                listDocumentos = await _context.AtividadeResponsaveis
+                                            .Where(p => p.Atividade.Restricao)
+                                            .Include(p => p.Atividade)
+                                            .ThenInclude(p => p.Projeto)
+                                            .ToListAsync();
             }
 
-            return list;
+            List<ModelDocumentos> list = new List<ModelDocumentos>() ;
+
+            foreach (var documento in listDocumentos)
+            {
+                ModelDocumentos doc = new ModelDocumentos();
+                doc.NomeProjeto = documento.Atividade.Projeto.Nome;
+                doc.LinkDocumento = "https://localhost:44346/Atividades/Download/" + documento.ID.ToString();
+                doc.DescricaoProjeto = documento.Atividade.Projeto.Descricao;
+                list.Add(doc);
+            }
+
+            return View(list);
         }
 
         // GET: api/Documentos/5
