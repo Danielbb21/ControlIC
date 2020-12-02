@@ -855,7 +855,7 @@ public class UsuariosController : Controller
         // GET: Usuarios
         [Authorize]
         public async Task<IActionResult> Index() {
-            if (User.Claims.ElementAt(3).Value != "3") return NotFound();
+            if (User.Claims.ElementAt(1).Value != "3") return NotFound();
 
             var controlICContext = _context.Usuarios.Include(u => u.Curso);
             return View(await controlICContext.ToListAsync());
